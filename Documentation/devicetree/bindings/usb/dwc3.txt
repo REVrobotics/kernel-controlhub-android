@@ -1,0 +1,41 @@
+synopsys DWC3 CORE
+
+DWC3- USB3 CONTROLLER
+
+Required properties:
+ - compatible: must be "snps,dwc3"
+ - reg : Address and length of the register set for the device
+ - interrupts: Interrupts used by the dwc3 controller.
+
+Optional properties:
+ - usb-phy : array of phandle for the PHY device.  The first element
+   in the array is expected to be a handle to the USB2/HS PHY and
+   the second element is expected to be a handle to the USB3/SS PHY
+ - phys: from the *Generic PHY* bindings
+ - phy-names: from the *Generic PHY* bindings
+ - tx-fifo-resize: determines if the FIFO *has* to be reallocated.
+ - snps,usb3_lpm_capable: determines if platform is USB3 LPM capable
+ - snps,u2ss_inp3_quirk: set if we enable P3 OK for U2/SS Inactive quirk
+ - snps,dis_enblslpm_quirk: when set clears the enblslpm in GUSB2PHYCFG,
+			disabling the suspend signal to the PHY.
+ - snps,dis-u3-autosuspend-quirk: when set USB core driver will disable
+			USB3 autosuspend function.
+ - snps,dis_u3_susphy_quirk: when set core will disable USB3 suspend phy.
+ - snps,dis_u2_susphy_quirk: when set core will disable USB2 suspend phy.
+ - snps,dis-u2-freeclk-exists-quirk: when set, clear the u2_freeclk_exists
+			in GUSB2PHYCFG, specify that USB2 PHY doesn't provide
+			a free-running PHY clock.
+ - snps,del_phy_power_chg_quirk: when set core will delay PHY power change
+			from P0 to P1/P2/P3.
+ - snps,dis-del-phy-power-chg-quirk: when set core will change PHY power
+			from P0 to P1/P2/P3 without delay.
+
+This is usually a subnode to DWC3 glue to which it is connected.
+
+dwc3@4a030000 {
+	compatible = "snps,dwc3";
+	reg = <0x4a030000 0xcfff>;
+	interrupts = <0 92 4>
+	usb-phy = <&usb2_phy>, <&usb3,phy>;
+	tx-fifo-resize;
+};
