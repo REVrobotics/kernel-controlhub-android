@@ -1,0 +1,269 @@
+/*
+ * Copyright (c) 2016 Fuzhou Rockchip Electronics Co., Ltd
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPL or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/dts-v1/;
+
+#include "rk3328.dtsi"
+#include "rk3328-evb.dtsi"
+#include "rk-stb-keymap.dtsi"
+
+/ {
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&rtd2660h_pwr_key>,<&change_ctrl_gpio>;
+
+		power-green {
+			gpios = <&rk805 0 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+			default-state = "on";
+			mode = <0x23>;
+		};
+
+		r-led {
+			gpios = <&gpio2 GPIO_C6 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "backlight";
+			default-state = "on";
+		};
+
+		g-led {
+			gpios = <&gpio2 GPIO_C3 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "backlight";
+			default-state = "on";
+		};
+
+		b-led {
+			gpios = <&gpio2 GPIO_A2 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "backlight";
+			default-state = "on";
+		};
+		/*for suspend*/
+		rtd2660h-power-key {
+			gpios = <&gpio1 GPIO_B0 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "backlight";
+			default-state = "on";
+		};
+		/*for suspend*/
+		bq24133-set1 {
+			gpios = <&gpio1 GPIO_C2 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "backlight";
+			default-state = "on";
+		};
+
+	};
+
+	vcc_tp: vcc-tp {
+		compatible = "regulator-fixed";
+		enable-active-low;
+		gpio = <&gpio1 GPIO_B1 GPIO_ACTIVE_LOW>; // this gpio is not used,for kernel debug error message
+		regulator-name = "vcc_tp";
+		pinctrl-names = "default";
+		pinctrl-0 = <&tp_pwr_ctrl>;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+	};
+
+	fiq-debugger {
+		pinctrl-names = "default";
+		pinctrl-0 = <&uart2m0_xfer>;
+	};
+};
+
+&rk805 {
+    rtc {
+        status = "okay";
+    };
+};
+
+/*for blue led control*/
+&pwm3 {
+	status = "disabled";
+};
+
+&clk_core_dvfs_table {
+	operating-points = <
+		/* KHz	uV */
+		408000	950000
+		600000	950000
+		816000	1000000
+		1008000	1100000
+		1200000	1225000
+		1296000	1300000
+		1392000	1350000
+		1512000	1350000
+		>;
+	status = "okay";
+};
+
+&gmac2phy {
+	/delete-property/ pinctrl-names;
+	/delete-property/ pinctrl-0;  //for i2c0 touchpanel
+	link-gpio = <&gpio2 GPIO_B7 GPIO_ACTIVE_HIGH>;
+	led-gpio = <&gpio1 GPIO_C3 GPIO_ACTIVE_LOW>;
+	status = "okay";
+};
+
+&wireless_bluetooth {
+	/delete-property/ BT,wake_gpio;   //for dc_det
+	/delete-property/ BT,power_gpio;	//GSEN_INT
+};
+&sdio {
+	status = "disabled";
+};
+&i2c0{
+	status = "okay";
+	//pinctrl-names = "default","sleep";
+//	pinctrl-0 = <&i2c0_xfer>;
+//	pinctrl-1 = <&i2c0_sleep_mode>;
+
+	lsm303d:lsm303d@1e {
+		compatible = "gs_lsm303d";
+		reg = <0x1e>;
+		type = <SENSOR_TYPE_ACCEL>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio1_c0>,<&gpio2_c7>;
+		irq-gpio = <&gpio1 16 IRQ_TYPE_LEVEL_LOW>;
+		irq_enable = <1>;
+		poll_delay_ms = <30>;
+		layout = <1>;
+	};
+
+	gt615: gt615@5d {		// 0x28/0x29 or 0xba/bb
+		status = "okay";
+		compatible = "goodix,gt9xx";
+		reg = <0x5d>;
+		touch-gpio = <&gpio2 GPIO_C5 IRQ_TYPE_LEVEL_LOW>;
+		reset-gpio = <&gpio2 GPIO_C4 GPIO_ACTIVE_HIGH>;
+		max-x = <800>;
+		max-y = <480>;
+		tp-size = <911>;			// 89 101 911
+	};
+};
+
+&rockchi_hdmi_i2s {
+	status = "disabled";
+};
+
+&codec {
+//	compatible = "rockchip,rk322x-codec";
+	spk_ctl_io = <&gpio1 GPIO_B5 GPIO_ACTIVE_HIGH>;
+};
+
+&i2c1 {
+	status = "okay";
+
+	CW2013@62 {
+		compatible = "cw201x";
+		reg = <0x62>;
+
+		dc_det_gpio = <&gpio1 GPIO_C1 GPIO_ACTIVE_LOW>;
+		bat_low_gpio = <&gpio1 GPIO_B6 GPIO_ACTIVE_LOW>;
+		/*bq24133 LOW when charge in progress. HIGH when charge is complete or in SLEEP mode. Blinking at 0.5 Hz when fault occurs*/
+		chg_ok_gpio = <&gpio1 GPIO_B7 GPIO_ACTIVE_HIGH>;
+		bat_config_info = <0x15 0x42 0x60 0x59 0x52 0x58 0x4D 0x48 0x48 0x44 0x44 0x46 0x49 0x48 0x32
+			0x24 0x20 0x17 0x13 0x0F 0x19 0x3E 0x51 0x45 0x08 0x76 0x0B 0x85 0x0E 0x1C 0x2E 0x3E 0x4D 0x52 0x52
+			0x57 0x3D 0x1B 0x6A 0x2D 0x25 0x43 0x52 0x87 0x8F 0x91 0x94 0x52 0x82 0x8C 0x92 0x96 0xFF 0x7B 0xBB
+			0xCB 0x2F 0x7D 0x72 0xA5 0xB5 0xC1 0x46 0xAE>;
+		is_dc_charge = <1>;
+		is_usb_charge = <1>;
+		monitor_sec = <5>;
+		virtual_power = <0>;
+		divider_res1 = <200>;
+		divider_res2 = <200>;
+		status = "okay";
+	};
+};
+
+&sdmmc {
+	status = "disabled";
+};
+
+&uart_dbg {
+	status = "disabled";
+	pinctrl-0 = <&uart2m0_xfer>;
+};
+
+&pinctrl {
+	i2c0 {
+		i2c0_xfer: i2c0-xfer {
+			rockchip,pins =
+				<2 GPIO_D0 RK_FUNC_1 &pcfg_pull_none_smt>,
+				<2 GPIO_D1 RK_FUNC_1 &pcfg_pull_none_smt>;
+		};
+
+		i2c0_sleep_mode: i2c0-sleep-mode {
+			rockchip,pins =
+				<2 GPIO_D0 RK_FUNC_GPIO &pcfg_pull_none_smt>,
+				<2 GPIO_D1 RK_FUNC_GPIO &pcfg_pull_none_smt>;
+		};
+	};
+
+	gpio {
+		gpio1_c0: gpio1-c0 {
+			rockchip,pins = <1 GPIO_C0 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+
+		gpio2_c7: gpio2-c7 {
+			rockchip,pins = <2 GPIO_C7 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+	rtd2660h-power {
+		rtd2660h_pwr_key: rtd2660h-pwr-key {
+			rockchip,pins = <1 GPIO_B0 RK_FUNC_GPIO &pcfg_pull_none_smt>;
+		};
+	};
+
+	tp {
+		tp_pwr_ctrl: tp-pwr-ctrl {
+			rockchip,pins = <1 GPIO_B1 RK_FUNC_GPIO &pcfg_pull_none_smt>;
+		};
+	};
+
+	bq24133 {
+		change_ctrl_gpio: change-ctrl-gpio {
+			rockchip,pins = <1 GPIO_C2 RK_FUNC_GPIO &pcfg_pull_none_smt>;
+		};
+	};
+
+};

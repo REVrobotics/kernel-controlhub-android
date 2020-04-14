@@ -154,7 +154,8 @@ static void rk322x_analog_output(struct rk322x_codec_priv *rk322x, int mute)
 	if (RK322XH_CODEC == rk322x->codec_type)
 		regmap_write(rk322x->grf, RK322XH_GRF_SOC_CON10,
 			     (BIT(1) << 16) | (mute << 1));
-	else
+
+	if(gpio_is_valid(rk322x->spk_ctl_gpio))
 		gpio_direction_output(rk322x->spk_ctl_gpio, mute);
 }
 
@@ -527,7 +528,7 @@ static int rk322x_platform_probe(struct platform_device *pdev)
 
 		rk322x->codec_type = RK322XH_CODEC;
 		grf = syscon_regmap_lookup_by_phandle(rk322x_np,
-						      "rockchip,grf");
+								"rockchip,grf");
 		if (IS_ERR(grf)) {
 			dev_err(&pdev->dev, "missing 'rockchip,grf'\n");
 			return PTR_ERR(grf);
@@ -536,14 +537,13 @@ static int rk322x_platform_probe(struct platform_device *pdev)
 		/* enable i2s_acodec_en */
 		regmap_write(grf, RK322XH_GRF_SOC_CON2,
 			     (BIT(14) << 16 | BIT(14)));
-	} else {
-		rk322x->spk_ctl_gpio = of_get_named_gpio(rk322x_np,
-							 "spk_ctl_io", 0);
-		if (!gpio_is_valid(rk322x->spk_ctl_gpio)) {
-			dev_err(&pdev->dev, "invalid spk ctl gpio\n");
-			return -EINVAL;
-		}
+	}
 
+	rk322x->spk_ctl_gpio = of_get_named_gpio(rk322x_np,
+						 "spk_ctl_io", 0);
+	if (!gpio_is_valid(rk322x->spk_ctl_gpio))
+		dev_err(&pdev->dev, "invalid spk ctl gpio\n");
+	else {
 		ret = devm_gpio_request(&pdev->dev,
 					rk322x->spk_ctl_gpio, "spk_ctl");
 		if (ret < 0) {

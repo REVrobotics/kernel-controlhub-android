@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
+ * Copyright(c) 2016 - 2019 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -26,73 +26,242 @@
 #define OUT
 #define INOUT
 
-#define HALMAC_BCN_IE_BMP_SIZE                  24 /* ID0~ID191, 192/8=24 */
+#define HALMAC_BCN_IE_BMP_SIZE	24 /* ID0~ID191, 192/8=24 */
 
 #ifndef HALMAC_RX_FIFO_EXPANDING_MODE_PKT_SIZE
 #define HALMAC_RX_FIFO_EXPANDING_MODE_PKT_SIZE	80
 #endif
 
-/* platform api */
-#define PLTFM_SDIO_CMD52_R(offset)				adapter->pHalmac_platform_api->SDIO_CMD52_READ(adapter->pDriver_adapter, offset)
-#define PLTFM_SDIO_CMD53_R8(offset)				adapter->pHalmac_platform_api->SDIO_CMD53_READ_8(adapter->pDriver_adapter, offset)
-#define PLTFM_SDIO_CMD53_R16(offset)			adapter->pHalmac_platform_api->SDIO_CMD53_READ_16(adapter->pDriver_adapter, offset)
-#define PLTFM_SDIO_CMD53_R32(offset)			adapter->pHalmac_platform_api->SDIO_CMD53_READ_32(adapter->pDriver_adapter, offset)
-#define PLTFM_SDIO_CMD53_RN(offset, size, data)	adapter->pHalmac_platform_api->SDIO_CMD53_READ_N(adapter->pDriver_adapter, offset, size, data)
-#define PLTFM_SDIO_CMD52_W(offset, val)			adapter->pHalmac_platform_api->SDIO_CMD52_WRITE(adapter->pDriver_adapter, offset, val)
-#define PLTFM_SDIO_CMD53_W8(offset, val)		adapter->pHalmac_platform_api->SDIO_CMD53_WRITE_8(adapter->pDriver_adapter, offset, val)
-#define PLTFM_SDIO_CMD53_W16(offset, val)		adapter->pHalmac_platform_api->SDIO_CMD53_WRITE_16(adapter->pDriver_adapter, offset, val)
-#define PLTFM_SDIO_CMD53_W32(offset, val)		adapter->pHalmac_platform_api->SDIO_CMD53_WRITE_32(adapter->pDriver_adapter, offset, val)
-#define PLTFM_SDIO_CMD52_CIA_R(offset)			adapter->pHalmac_platform_api->SDIO_CMD52_CIA_READ(adapter->pDriver_adapter, offset)
-
-#define PLTFM_REG_R8(offset)					adapter->pHalmac_platform_api->REG_READ_8(adapter->pDriver_adapter, offset)
-#define PLTFM_REG_R16(offset)					adapter->pHalmac_platform_api->REG_READ_16(adapter->pDriver_adapter, offset)
-#define PLTFM_REG_R32(offset)					adapter->pHalmac_platform_api->REG_READ_32(adapter->pDriver_adapter, offset)
-#define PLTFM_REG_W8(offset, val)				adapter->pHalmac_platform_api->REG_WRITE_8(adapter->pDriver_adapter, offset, val)
-#define PLTFM_REG_W16(offset, val)				adapter->pHalmac_platform_api->REG_WRITE_16(adapter->pDriver_adapter, offset, val)
-#define PLTFM_REG_W32(offset, val)				adapter->pHalmac_platform_api->REG_WRITE_32(adapter->pDriver_adapter, offset, val)
-
-#define PLTFM_SEND_RSVD_PAGE(buf, size)			adapter->pHalmac_platform_api->SEND_RSVD_PAGE(adapter->pDriver_adapter, buf, size)
-#define PLTFM_SEND_H2C_PKT(buf, size)			adapter->pHalmac_platform_api->SEND_H2C_PKT(adapter->pDriver_adapter, buf, size)
-
-#define PLTFM_FREE(buf, size)					adapter->pHalmac_platform_api->RTL_FREE(adapter->pDriver_adapter, buf, size)
-#define PLTFM_MALLOC(size)						adapter->pHalmac_platform_api->RTL_MALLOC(adapter->pDriver_adapter, size)
-#define PLTFM_MEMCPY(dest, src, size)			adapter->pHalmac_platform_api->RTL_MEMCPY(adapter->pDriver_adapter, dest, src, size)
-#define PLTFM_MEMSET(addr, value, size)			adapter->pHalmac_platform_api->RTL_MEMSET(adapter->pDriver_adapter, addr, value, size)
-#define PLTFM_DELAY_US(us)						adapter->pHalmac_platform_api->RTL_DELAY_US(adapter->pDriver_adapter, us)
-
-#define PLTFM_MUTEX_INIT(mutex)					adapter->pHalmac_platform_api->MUTEX_INIT(adapter->pDriver_adapter, mutex)
-#define PLTFM_MUTEX_DEINIT(mutex)				adapter->pHalmac_platform_api->MUTEX_DEINIT(adapter->pDriver_adapter, mutex)
-#define PLTFM_MUTEX_LOCK(mutex)					adapter->pHalmac_platform_api->MUTEX_LOCK(adapter->pDriver_adapter, mutex)
-#define PLTFM_MUTEX_UNLOCK(mutex)				adapter->pHalmac_platform_api->MUTEX_UNLOCK(adapter->pDriver_adapter, mutex)
-
-#define PLTFM_EVENT_INDICATION(feature_id, proc_status, buf, size) \
-	adapter->pHalmac_platform_api->EVENT_INDICATION(adapter->pDriver_adapter, feature_id, proc_status, buf, size)
-
-#if HALMAC_DBG_MSG_ENABLE
-#define PLTFM_MSG_PRINT(msg_level, ...) \
-	adapter->pHalmac_platform_api->MSG_PRINT(adapter->pDriver_adapter, HALMAC_MSG_INIT, msg_level, __VA_ARGS__)
-#else
-#define PLTFM_MSG_PRINT(drv_adapter, msg_type, msg_level, fmt, ...)	 do {} while (0)
+#ifndef HALMAC_MSG_LEVEL_TRACE
+#define HALMAC_MSG_LEVEL_TRACE		3
 #endif
 
-#define HALMAC_REG_R8(offset)					api->halmac_reg_read_8(adapter, offset)
-#define HALMAC_REG_R16(offset)					api->halmac_reg_read_16(adapter, offset)
-#define HALMAC_REG_R32(offset)					api->halmac_reg_read_32(adapter, offset)
-#define HALMAC_REG_W8(offset, val)				api->halmac_reg_write_8(adapter, offset, val)
-#define HALMAC_REG_W16(offset, val)				api->halmac_reg_write_16(adapter, offset, val)
-#define HALMAC_REG_W32(offset, val)				api->halmac_reg_write_32(adapter, offset, val)
-#define HALMAC_REG_SDIO_RN(offset, size, data)	api->halmac_reg_sdio_cmd53_read_n(adapter, offset, size, data)
+#ifndef HALMAC_MSG_LEVEL_WARNING
+#define HALMAC_MSG_LEVEL_WARNING	2
+#endif
+
+#ifndef HALMAC_MSG_LEVEL_ERR
+#define HALMAC_MSG_LEVEL_ERR		1
+#endif
+
+#ifndef HALMAC_MSG_LEVEL_NO_LOG
+#define HALMAC_MSG_LEVEL_NO_LOG		0
+#endif
+
+#ifndef HALMAC_SDIO_SUPPORT
+#define HALMAC_SDIO_SUPPORT		1
+#endif
+
+#ifndef HALMAC_USB_SUPPORT
+#define HALMAC_USB_SUPPORT		1
+#endif
+
+#ifndef HALMAC_PCIE_SUPPORT
+#define HALMAC_PCIE_SUPPORT		1
+#endif
+
+#ifndef HALMAC_MSG_LEVEL
+#define HALMAC_MSG_LEVEL HALMAC_MSG_LEVEL_TRACE
+#endif
+
+#ifndef HALMAC_DBG_MONITOR_IO
+#define HALMAC_DBG_MONITOR_IO 0
+#endif
+
+/* platform api */
+#define PLTFM_SDIO_CMD52_R(offset)                                             \
+	adapter->pltfm_api->SDIO_CMD52_READ(adapter->drv_adapter, offset)
+#define PLTFM_SDIO_CMD53_R8(offset)                                            \
+	adapter->pltfm_api->SDIO_CMD53_READ_8(adapter->drv_adapter, offset)
+#define PLTFM_SDIO_CMD53_R16(offset)                                           \
+	adapter->pltfm_api->SDIO_CMD53_READ_16(adapter->drv_adapter, offset)
+#define PLTFM_SDIO_CMD53_R32(offset)                                           \
+	adapter->pltfm_api->SDIO_CMD53_READ_32(adapter->drv_adapter, offset)
+#define PLTFM_SDIO_CMD53_RN(offset, size, data)                                \
+	adapter->pltfm_api->SDIO_CMD53_READ_N(adapter->drv_adapter, offset,    \
+					      size, data)
+#define PLTFM_SDIO_CMD52_W(offset, val)                                        \
+	adapter->pltfm_api->SDIO_CMD52_WRITE(adapter->drv_adapter, offset, val)
+#define PLTFM_SDIO_CMD53_W8(offset, val)                                       \
+	adapter->pltfm_api->SDIO_CMD53_WRITE_8(adapter->drv_adapter, offset,   \
+					       val)
+#define PLTFM_SDIO_CMD53_W16(offset, val)                                      \
+	adapter->pltfm_api->SDIO_CMD53_WRITE_16(adapter->drv_adapter, offset,  \
+						val)
+#define PLTFM_SDIO_CMD53_W32(offset, val)                                      \
+	adapter->pltfm_api->SDIO_CMD53_WRITE_32(adapter->drv_adapter, offset,  \
+						val)
+#define PLTFM_SDIO_CMD52_CIA_R(offset)                                         \
+	adapter->pltfm_api->SDIO_CMD52_CIA_READ(adapter->drv_adapter, offset)
+
+#define PLTFM_REG_R8(offset)                                                   \
+	adapter->pltfm_api->REG_READ_8(adapter->drv_adapter, offset)
+#define PLTFM_REG_R16(offset)                                                  \
+	adapter->pltfm_api->REG_READ_16(adapter->drv_adapter, offset)
+#define PLTFM_REG_R32(offset)                                                  \
+	adapter->pltfm_api->REG_READ_32(adapter->drv_adapter, offset)
+#define PLTFM_REG_W8(offset, val)                                              \
+	adapter->pltfm_api->REG_WRITE_8(adapter->drv_adapter, offset, val)
+#define PLTFM_REG_W16(offset, val)                                             \
+	adapter->pltfm_api->REG_WRITE_16(adapter->drv_adapter, offset, val)
+#define PLTFM_REG_W32(offset, val)                                             \
+	adapter->pltfm_api->REG_WRITE_32(adapter->drv_adapter, offset, val)
+
+#define PLTFM_SEND_RSVD_PAGE(buf, size)                                        \
+	adapter->pltfm_api->SEND_RSVD_PAGE(adapter->drv_adapter, buf, size)
+#define PLTFM_SEND_H2C_PKT(buf, size)                                          \
+	adapter->pltfm_api->SEND_H2C_PKT(adapter->drv_adapter, buf, size)
+
+#define PLTFM_FREE(buf, size)                                                  \
+	adapter->pltfm_api->RTL_FREE(adapter->drv_adapter, buf, size)
+#define PLTFM_MALLOC(size)                                                     \
+	adapter->pltfm_api->RTL_MALLOC(adapter->drv_adapter, size)
+#define PLTFM_MEMCPY(dest, src, size)                                          \
+	adapter->pltfm_api->RTL_MEMCPY(adapter->drv_adapter, dest, src, size)
+#define PLTFM_MEMSET(addr, value, size)                                        \
+	adapter->pltfm_api->RTL_MEMSET(adapter->drv_adapter, addr, value, size)
+#define PLTFM_DELAY_US(us)                                                     \
+	adapter->pltfm_api->RTL_DELAY_US(adapter->drv_adapter, us)
+
+#define PLTFM_MUTEX_INIT(mutex)                                                \
+	adapter->pltfm_api->MUTEX_INIT(adapter->drv_adapter, mutex)
+#define PLTFM_MUTEX_DEINIT(mutex)                                              \
+	adapter->pltfm_api->MUTEX_DEINIT(adapter->drv_adapter, mutex)
+#define PLTFM_MUTEX_LOCK(mutex)                                                \
+	adapter->pltfm_api->MUTEX_LOCK(adapter->drv_adapter, mutex)
+#define PLTFM_MUTEX_UNLOCK(mutex)                                              \
+	adapter->pltfm_api->MUTEX_UNLOCK(adapter->drv_adapter, mutex)
+
+#define PLTFM_EVENT_SIG(feature_id, proc_status, buf, size)                    \
+	adapter->pltfm_api->EVENT_INDICATION(adapter->drv_adapter, feature_id, \
+					     proc_status, buf, size)
+
+#if HALMAC_PLATFORM_WINDOWS
+#define PLTFM_MSG_PRINT	adapter->pltfm_api->MSG_PRINT
+#endif
+
+#define PLTFM_MSG_ALWAYS(...)                                                  \
+	adapter->pltfm_api->MSG_PRINT(adapter->drv_adapter, HALMAC_MSG_INIT,   \
+				      HALMAC_DBG_ALWAYS, __VA_ARGS__)
+
+#if HALMAC_DBG_MSG_ENABLE
+
+/* Enable debug msg depends on  HALMAC_MSG_LEVEL */
+#if (HALMAC_MSG_LEVEL >= HALMAC_MSG_LEVEL_ERR)
+#define PLTFM_MSG_ERR(...)                                                     \
+	adapter->pltfm_api->MSG_PRINT(adapter->drv_adapter, HALMAC_MSG_INIT,   \
+				      HALMAC_DBG_ERR, __VA_ARGS__)
+#else
+#define PLTFM_MSG_ERR(...)	do {} while (0)
+#endif
+
+#if (HALMAC_MSG_LEVEL >= HALMAC_MSG_LEVEL_WARNING)
+#define PLTFM_MSG_WARN(...)                                                    \
+	adapter->pltfm_api->MSG_PRINT(adapter->drv_adapter, HALMAC_MSG_INIT,   \
+				      HALMAC_DBG_WARN, __VA_ARGS__)
+#else
+#define PLTFM_MSG_WARN(...)	do {} while (0)
+#endif
+
+#if (HALMAC_MSG_LEVEL >= HALMAC_MSG_LEVEL_TRACE)
+#define PLTFM_MSG_TRACE(...)                                                   \
+	adapter->pltfm_api->MSG_PRINT(adapter->drv_adapter, HALMAC_MSG_INIT,   \
+				      HALMAC_DBG_TRACE, __VA_ARGS__)
+#else
+#define PLTFM_MSG_TRACE(...)	do {} while (0)
+#endif
+
+#else
+
+/* Disable debug msg  */
+#define PLTFM_MSG_ERR(...)	do {} while (0)
+#define PLTFM_MSG_WARN(...)	do {} while (0)
+#define PLTFM_MSG_TRACE(...)	do {} while (0)
+
+#endif
+
+#if HALMAC_DBG_MONITOR_IO
+#define PLTFM_MONITOR_READ(offset, byte, val, __func, __line)                  \
+	adapter->pltfm_api->READ_MONITOR(adapter->drv_adapter, offset, byte,   \
+					 val, __func, __line)
+#define PLTFM_MONITOR_WRITE(offset, byte, val, __func, __line)                 \
+	adapter->pltfm_api->WRITE_MONITOR(adapter->drv_adapter, offset, byte,  \
+					  val, __func, __line)
+
+#define HALMAC_REG_R8(offset)                                                  \
+	api->halmac_mon_reg_read_8(adapter, offset, __func__, __LINE__)
+#define HALMAC_REG_R16(offset)                                                 \
+	api->halmac_mon_reg_read_16(adapter, offset, __func__, __LINE__)
+#define HALMAC_REG_R32(offset)                                                 \
+	api->halmac_mon_reg_read_32(adapter, offset, __func__, __LINE__)
+#define HALMAC_REG_W8(offset, val)                                             \
+	api->halmac_mon_reg_write_8(adapter, offset, val,                      \
+				    __func__, __LINE__)
+#define HALMAC_REG_W16(offset, val)                                            \
+	api->halmac_mon_reg_write_16(adapter, offset, val,                     \
+				     __func__, __LINE__)
+#define HALMAC_REG_W32(offset, val)                                            \
+	api->halmac_mon_reg_write_32(adapter, offset, val,                     \
+				     __func__, __LINE__)
+#define HALMAC_REG_SDIO_RN(offset, size, data)                                 \
+	api->halmac_mon_reg_sdio_cmd53_read_n(adapter, offset, size, data,     \
+					      __func__, __LINE__)
+
+#else
+#define HALMAC_REG_R8(offset) api->halmac_reg_read_8(adapter, offset)
+#define HALMAC_REG_R16(offset) api->halmac_reg_read_16(adapter, offset)
+#define HALMAC_REG_R32(offset) api->halmac_reg_read_32(adapter, offset)
+#define HALMAC_REG_W8(offset, val) api->halmac_reg_write_8(adapter, offset, val)
+#define HALMAC_REG_W16(offset, val)                                            \
+	api->halmac_reg_write_16(adapter, offset, val)
+#define HALMAC_REG_W32(offset, val)                                            \
+	api->halmac_reg_write_32(adapter, offset, val)
+#define HALMAC_REG_SDIO_RN(offset, size, data)                                 \
+	api->halmac_reg_sdio_cmd53_read_n(adapter, offset, size, data)
+#endif
+
+#define HALMAC_REG_W8_CLR(offset, mask)                                        \
+	do {                                                                   \
+		u32 __offset = (u32)offset;                                    \
+		HALMAC_REG_W8(__offset, HALMAC_REG_R8(__offset) & ~(mask));    \
+	} while (0)
+#define HALMAC_REG_W16_CLR(offset, mask)                                       \
+	do {                                                                   \
+		u32 __offset = (u32)offset;                                    \
+		HALMAC_REG_W16(__offset, HALMAC_REG_R16(__offset) & ~(mask));  \
+	} while (0)
+#define HALMAC_REG_W32_CLR(offset, mask)                                       \
+	do {                                                                   \
+		u32 __offset = (u32)offset;                                    \
+		HALMAC_REG_W32(__offset, HALMAC_REG_R32(__offset) & ~(mask));  \
+	} while (0)
+
+#define HALMAC_REG_W8_SET(offset, mask)                                        \
+	do {                                                                   \
+		u32 __offset = (u32)offset;                                    \
+		HALMAC_REG_W8(__offset, HALMAC_REG_R8(__offset) | mask);       \
+	} while (0)
+#define HALMAC_REG_W16_SET(offset, mask)                                       \
+	do {                                                                   \
+		u32 __offset = (u32)offset;                                    \
+		HALMAC_REG_W16(__offset, HALMAC_REG_R16(__offset) | mask);     \
+	} while (0)
+#define HALMAC_REG_W32_SET(offset, mask)                                       \
+	do {                                                                   \
+		u32 __offset = (u32)offset;                                    \
+		HALMAC_REG_W32(__offset, HALMAC_REG_R32(__offset) | mask);     \
+	} while (0)
 
 /* Swap Little-endian <-> Big-endia*/
-#define SWAP32(x) ((u32)( \
-			   (((u32)(x) & (u32)0x000000ff) << 24) | \
-			   (((u32)(x) & (u32)0x0000ff00) << 8) | \
-			   (((u32)(x) & (u32)0x00ff0000) >> 8) | \
-			   (((u32)(x) & (u32)0xff000000) >> 24)))
+#define SWAP32(x)                                                              \
+	((u32)((((u32)(x) & (u32)0x000000ff) << 24) |                          \
+	       (((u32)(x) & (u32)0x0000ff00) << 8) |                           \
+	       (((u32)(x) & (u32)0x00ff0000) >> 8) |                           \
+	       (((u32)(x) & (u32)0xff000000) >> 24)))
 
-#define SWAP16(x) ((u16)( \
-			   (((u16)(x) & (u16)0x00ff) << 8) | \
-			   (((u16)(x) & (u16)0xff00) >> 8)))
+#define SWAP16(x)                                                              \
+	((u16)((((u16)(x) & (u16)0x00ff) << 8) |                               \
+	       (((u16)(x) & (u16)0xff00) >> 8)))
 
 /*1->Little endian 0->Big endian*/
 #if HALMAC_SYSTEM_ENDIAN
@@ -126,16 +295,16 @@
 #if !((HALMAC_PLATFORM_WINDOWS == 1) && (HALMAC_PLATFORM_TESTPROGRAM == 0))
 
 /* Byte Swapping routine */
-#ifndef EF1Byte
-#define EF1Byte (u8)
+#ifndef EF1BYTE
+#define EF1BYTE (u8)
 #endif
 
-#ifndef EF2Byte
-#define EF2Byte rtk_le16_to_cpu
+#ifndef EF2BYTE
+#define EF2BYTE rtk_le16_to_cpu
 #endif
 
-#ifndef EF4Byte
-#define EF4Byte rtk_le32_to_cpu
+#ifndef EF4BYTE
+#define EF4BYTE rtk_le32_to_cpu
 #endif
 
 /* Example:
@@ -145,8 +314,7 @@
  * BIT_LEN_MASK_32(32) => 0xFFFFFFFF
  */
 #ifndef BIT_LEN_MASK_32
-#define BIT_LEN_MASK_32(__BitLen) \
-	(0xFFFFFFFF >> (32 - (__BitLen)))
+#define BIT_LEN_MASK_32(__bitlen) (0xFFFFFFFF >> (32 - (__bitlen)))
 #endif
 
 /* Example:
@@ -154,28 +322,24 @@
  * BIT_OFFSET_LEN_MASK_32(16, 2) => 0x00030000
  */
 #ifndef BIT_OFFSET_LEN_MASK_32
-#define BIT_OFFSET_LEN_MASK_32(__BitOffset, __BitLen) \
-	(BIT_LEN_MASK_32(__BitLen) << (__BitOffset))
+#define BIT_OFFSET_LEN_MASK_32(__bitoffset, __bitlen)                          \
+	(BIT_LEN_MASK_32(__bitlen) << (__bitoffset))
 #endif
 
 /* Return 4-byte value in host byte ordering from
  * 4-byte pointer in litten-endian system
  */
 #ifndef LE_P4BYTE_TO_HOST_4BYTE
-#define LE_P4BYTE_TO_HOST_4BYTE(__pStart) \
-	(EF4Byte(*((u32 *)(__pStart))))
+#define LE_P4BYTE_TO_HOST_4BYTE(__start) (EF4BYTE(*((u32 *)(__start))))
 #endif
 
 /* Translate subfield (continuous bits in little-endian) of
  * 4-byte value in litten byte to 4-byte value in host byte ordering
  */
 #ifndef LE_BITS_TO_4BYTE
-#define LE_BITS_TO_4BYTE(__pStart, __BitOffset, __BitLen) \
-	( \
-		(LE_P4BYTE_TO_HOST_4BYTE(__pStart) >> (__BitOffset)) \
-		& \
-		BIT_LEN_MASK_32(__BitLen) \
-	)
+#define LE_BITS_TO_4BYTE(__start, __bitoffset, __bitlen)                       \
+	((LE_P4BYTE_TO_HOST_4BYTE(__start) >> (__bitoffset)) &                 \
+	 BIT_LEN_MASK_32(__bitlen))
 #endif
 
 /* Mask subfield (continuous bits in little-endian) of 4-byte
@@ -183,50 +347,47 @@
  * value in host byte ordering
  */
 #ifndef LE_BITS_CLEARED_TO_4BYTE
-#define LE_BITS_CLEARED_TO_4BYTE(__pStart, __BitOffset, __BitLen) \
-	( \
-		LE_P4BYTE_TO_HOST_4BYTE(__pStart) \
-		& \
-		(~BIT_OFFSET_LEN_MASK_32(__BitOffset, __BitLen)) \
-	)
+#define LE_BITS_CLEARED_TO_4BYTE(__start, __bitoffset, __bitlen)               \
+	(LE_P4BYTE_TO_HOST_4BYTE(__start) &                                    \
+	 (~BIT_OFFSET_LEN_MASK_32(__bitoffset, __bitlen)))
 #endif
 
 /* Set subfield of little-endian 4-byte value to specified value */
 #ifndef SET_BITS_TO_LE_4BYTE
-#define SET_BITS_TO_LE_4BYTE(__pStart, __BitOffset, __BitLen, __Value) \
-	do { \
-		*((u32 *)(__pStart)) = \
-			EF4Byte( \
-				LE_BITS_CLEARED_TO_4BYTE(__pStart, __BitOffset, __BitLen) \
-				| \
-				((((u32)__Value) & BIT_LEN_MASK_32(__BitLen)) << (__BitOffset)) \
-			); \
+#define SET_BITS_TO_LE_4BYTE(__start, __bitoffset, __bitlen, __value)          \
+	do {                                                                   \
+		*((u32 *)(__start)) = \
+		EF4BYTE( \
+		LE_BITS_CLEARED_TO_4BYTE(__start, __bitoffset, __bitlen) |     \
+		((((u32)__value) & BIT_LEN_MASK_32(__bitlen)) << (__bitoffset))\
+		);                                                             \
 	} while (0)
 #endif
 
 #ifndef HALMAC_BIT_OFFSET_VAL_MASK_32
-#define HALMAC_BIT_OFFSET_VAL_MASK_32(__BitVal, __BitOffset) \
-	(__BitVal << (__BitOffset))
+#define HALMAC_BIT_OFFSET_VAL_MASK_32(__bitval, __bitoffset)                   \
+	(__bitval << (__bitoffset))
 #endif
 
 #ifndef SET_MEM_OP
-#define SET_MEM_OP(Dw, Value32, Mask, Shift) \
-	(((Dw) & ~((Mask) << (Shift))) | (((Value32) & (Mask)) << (Shift)))
+#define SET_MEM_OP(dw, value32, mask, shift)                                   \
+	(((dw) & ~((mask) << (shift))) | (((value32) & (mask)) << (shift)))
 #endif
 
 #ifndef HALMAC_SET_DESC_FIELD_CLR
-#define HALMAC_SET_DESC_FIELD_CLR(Dw, Value32, Mask, Shift) \
-	(Dw = (rtk_cpu_to_le32(SET_MEM_OP(rtk_cpu_to_le32(Dw), Value32, Mask, Shift))))
+#define HALMAC_SET_DESC_FIELD_CLR(dw, value32, mask, shift)                    \
+	(dw = (rtk_cpu_to_le32(                                                \
+		 SET_MEM_OP(rtk_cpu_to_le32(dw), value32, mask, shift))))
 #endif
 
 #ifndef HALMAC_SET_DESC_FIELD_NO_CLR
-#define HALMAC_SET_DESC_FIELD_NO_CLR(Dw, Value32, Mask, Shift) \
-	(Dw |= (rtk_cpu_to_le32(((Value32) & (Mask)) << (Shift))))
+#define HALMAC_SET_DESC_FIELD_NO_CLR(dw, value32, mask, shift)                 \
+	(dw |= (rtk_cpu_to_le32(((value32) & (mask)) << (shift))))
 #endif
 
 #ifndef HALMAC_GET_DESC_FIELD
-#define HALMAC_GET_DESC_FIELD(Dw, Mask, Shift) \
-	((rtk_le32_to_cpu(Dw) >> (Shift)) & (Mask))
+#define HALMAC_GET_DESC_FIELD(dw, mask, shift)                                 \
+	((rtk_le32_to_cpu(dw) >> (shift)) & (mask))
 #endif
 
 #define HALMAC_SET_BD_FIELD_CLR HALMAC_SET_DESC_FIELD_CLR
@@ -277,7 +438,7 @@ enum halmac_ret_status {
 	HALMAC_RET_MALLOC_FAIL = 0x04,
 	HALMAC_RET_ADAPTER_INVALID = 0x05,
 	HALMAC_RET_ITF_INCORRECT = 0x06,
-	HALMAC_RET_DLFW_FAIL = 0x07, /* only use in halmac_download_firmware, else use HALMAC_RET_NO_DLFW*/
+	HALMAC_RET_DLFW_FAIL = 0x07,
 	HALMAC_RET_PORT_NOT_SUPPORT = 0x08,
 	HALMAC_RET_TXAGG_OVERFLOW = 0x09,
 	HALMAC_RET_INIT_LLT_FAIL = 0x0A,
@@ -379,6 +540,12 @@ enum halmac_ret_status {
 	HALMAC_RET_THRESHOLD_FAIL = 0x71,
 	HALMAC_RET_SDIO_MIX_MODE = 0x72,
 	HALMAC_RET_TXDESC_SET_FAIL = 0x73,
+	HALMAC_RET_WLHDR_FAIL = 0x74,
+	HALMAC_RET_WLAN_MODE_FAIL = 0x75,
+	HALMAC_RET_SDIO_SEQ_FAIL = 0x72,
+	HALMAC_RET_INIT_XTAL_AAC_FAIL = 0x76,
+	HALMAC_RET_PINMUX_NOT_SUPPORT = 0x77,
+	HALMAC_RET_FWFF_NO_EMPTY = 0x78,
 };
 
 enum halmac_chip_id {
@@ -387,6 +554,7 @@ enum halmac_chip_id {
 	HALMAC_CHIP_ID_8814B = 2,
 	HALMAC_CHIP_ID_8197F = 3,
 	HALMAC_CHIP_ID_8822C = 4,
+	HALMAC_CHIP_ID_8812F = 5,
 	HALMAC_CHIP_ID_UNDEFINE = 0x7F,
 };
 
@@ -424,6 +592,13 @@ enum halmac_dma_mapping {
 	HALMAC_DMA_MAPPING_UNDEFINE = 0x7F,
 };
 
+enum halmac_io_size {
+	HALMAC_IO_BYTE = 0x0,
+	HALMAC_IO_WORD = 0x1,
+	HALMAC_IO_DWORD = 0x2,
+	HALMAC_IO_UNDEFINE = 0x7F,
+};
+
 #define HALMAC_MAP2_HQ		HALMAC_DMA_MAPPING_HIGH
 #define HALMAC_MAP2_NQ		HALMAC_DMA_MAPPING_NORMAL
 #define HALMAC_MAP2_LQ		HALMAC_DMA_MAPPING_LOW
@@ -457,40 +632,40 @@ enum halmac_txdesc_queue_tid {
 	HALMAC_TXDESC_QSEL_UNDEFINE = 0x7F,
 };
 
-enum halmac_ptcl_queue_id {
-	HALMAC_PTCL_QUEUE_VO = 0x0,
-	HALMAC_PTCL_QUEUE_VI = 0x1,
-	HALMAC_PTCL_QUEUE_BE = 0x2,
-	HALMAC_PTCL_QUEUE_BK = 0x3,
-	HALMAC_PTCL_QUEUE_MG = 0x4,
-	HALMAC_PTCL_QUEUE_HI = 0x5,
-	HALMAC_PTCL_QUEUE_NUM = 0x6,
-	HALMAC_PTCL_QUEUE_UNDEFINE = 0x7F,
+enum halmac_pq_map_id {
+	HALMAC_PQ_MAP_VO = 0x0,
+	HALMAC_PQ_MAP_VI = 0x1,
+	HALMAC_PQ_MAP_BE = 0x2,
+	HALMAC_PQ_MAP_BK = 0x3,
+	HALMAC_PQ_MAP_MG = 0x4,
+	HALMAC_PQ_MAP_HI = 0x5,
+	HALMAC_PQ_MAP_NUM = 0x6,
+	HALMAC_PQ_MAP_UNDEF = 0x7F,
 };
 
-enum halmac_queue_select {
-	HALMAC_QUEUE_SELECT_VO = HALMAC_TXDESC_QSEL_TID6,
-	HALMAC_QUEUE_SELECT_VI = HALMAC_TXDESC_QSEL_TID4,
-	HALMAC_QUEUE_SELECT_BE = HALMAC_TXDESC_QSEL_TID0,
-	HALMAC_QUEUE_SELECT_BK = HALMAC_TXDESC_QSEL_TID1,
-	HALMAC_QUEUE_SELECT_VO_V2 = HALMAC_TXDESC_QSEL_TID7,
-	HALMAC_QUEUE_SELECT_VI_V2 = HALMAC_TXDESC_QSEL_TID5,
-	HALMAC_QUEUE_SELECT_BE_V2 = HALMAC_TXDESC_QSEL_TID3,
-	HALMAC_QUEUE_SELECT_BK_V2 = HALMAC_TXDESC_QSEL_TID2,
-	HALMAC_QUEUE_SELECT_TID8 = HALMAC_TXDESC_QSEL_TID8,
-	HALMAC_QUEUE_SELECT_TID9 = HALMAC_TXDESC_QSEL_TID9,
-	HALMAC_QUEUE_SELECT_TIDA = HALMAC_TXDESC_QSEL_TIDA,
-	HALMAC_QUEUE_SELECT_TIDB = HALMAC_TXDESC_QSEL_TIDB,
-	HALMAC_QUEUE_SELECT_TIDC = HALMAC_TXDESC_QSEL_TIDC,
-	HALMAC_QUEUE_SELECT_TIDD = HALMAC_TXDESC_QSEL_TIDD,
-	HALMAC_QUEUE_SELECT_TIDE = HALMAC_TXDESC_QSEL_TIDE,
-	HALMAC_QUEUE_SELECT_TIDF = HALMAC_TXDESC_QSEL_TIDF,
-	HALMAC_QUEUE_SELECT_BCN = HALMAC_TXDESC_QSEL_BEACON,
-	HALMAC_QUEUE_SELECT_HIGH = HALMAC_TXDESC_QSEL_HIGH,
-	HALMAC_QUEUE_SELECT_MGNT = HALMAC_TXDESC_QSEL_MGT,
-	HALMAC_QUEUE_SELECT_CMD = HALMAC_TXDESC_QSEL_H2C_CMD,
-	HALMAC_QUEUE_SELECT_FWCMD = HALMAC_TXDESC_QSEL_FWCMD,
-	HALMAC_QUEUE_SELECT_UNDEFINE = 0x7F,
+enum halmac_qsel {
+	HALMAC_QSEL_VO = HALMAC_TXDESC_QSEL_TID6,
+	HALMAC_QSEL_VI = HALMAC_TXDESC_QSEL_TID4,
+	HALMAC_QSEL_BE = HALMAC_TXDESC_QSEL_TID0,
+	HALMAC_QSEL_BK = HALMAC_TXDESC_QSEL_TID1,
+	HALMAC_QSEL_VO_V2 = HALMAC_TXDESC_QSEL_TID7,
+	HALMAC_QSEL_VI_V2 = HALMAC_TXDESC_QSEL_TID5,
+	HALMAC_QSEL_BE_V2 = HALMAC_TXDESC_QSEL_TID3,
+	HALMAC_QSEL_BK_V2 = HALMAC_TXDESC_QSEL_TID2,
+	HALMAC_QSEL_TID8 = HALMAC_TXDESC_QSEL_TID8,
+	HALMAC_QSEL_TID9 = HALMAC_TXDESC_QSEL_TID9,
+	HALMAC_QSEL_TIDA = HALMAC_TXDESC_QSEL_TIDA,
+	HALMAC_QSEL_TIDB = HALMAC_TXDESC_QSEL_TIDB,
+	HALMAC_QSEL_TIDC = HALMAC_TXDESC_QSEL_TIDC,
+	HALMAC_QSEL_TIDD = HALMAC_TXDESC_QSEL_TIDD,
+	HALMAC_QSEL_TIDE = HALMAC_TXDESC_QSEL_TIDE,
+	HALMAC_QSEL_TIDF = HALMAC_TXDESC_QSEL_TIDF,
+	HALMAC_QSEL_BCN = HALMAC_TXDESC_QSEL_BEACON,
+	HALMAC_QSEL_HIGH = HALMAC_TXDESC_QSEL_HIGH,
+	HALMAC_QSEL_MGNT = HALMAC_TXDESC_QSEL_MGT,
+	HALMAC_QSEL_CMD = HALMAC_TXDESC_QSEL_H2C_CMD,
+	HALMAC_QSEL_FWCMD = HALMAC_TXDESC_QSEL_FWCMD,
+	HALMAC_QSEL_UNDEFINE = 0x7F,
 };
 
 enum halmac_acq_id {
@@ -501,55 +676,55 @@ enum halmac_acq_id {
 	HALMAC_ACQ_ID_MAX = 0x7F,
 };
 
-enum halmac_txdesc_dma_channel {
-	HALMAC_TXDESC_DMA_CHANNEL_0 = 0,
-	HALMAC_TXDESC_DMA_CHANNEL_1 = 1,
-	HALMAC_TXDESC_DMA_CHANNEL_2 = 2,
-	HALMAC_TXDESC_DMA_CHANNEL_3 = 3,
-	HALMAC_TXDESC_DMA_CHANNEL_4 = 4,
-	HALMAC_TXDESC_DMA_CHANNEL_5 = 5,
-	HALMAC_TXDESC_DMA_CHANNEL_6 = 6,
-	HALMAC_TXDESC_DMA_CHANNEL_7 = 7,
-	HALMAC_TXDESC_DMA_CHANNEL_8 = 8,
-	HALMAC_TXDESC_DMA_CHANNEL_9 = 9,
-	HALMAC_TXDESC_DMA_CHANNEL_10 = 10,
-	HALMAC_TXDESC_DMA_CHANNEL_11 = 11,
-	HALMAC_TXDESC_DMA_CHANNEL_12 = 12,
-	HALMAC_TXDESC_DMA_CHANNEL_13 = 13,
-	HALMAC_TXDESC_DMA_CHANNEL_14 = 14,
-	HALMAC_TXDESC_DMA_CHANNEL_15 = 15,
-	HALMAC_TXDESC_DMA_CHANNEL_16 = 16,
-	HALMAC_TXDESC_DMA_CHANNEL_17 = 17,
-	HALMAC_TXDESC_DMA_CHANNEL_18 = 18,
-	HALMAC_TXDESC_DMA_CHANNEL_19 = 19,
-	HALMAC_TXDESC_DMA_CHANNEL_20 = 20,
-	HALMAC_TXDESC_DMA_CHANNEL_MAX,
-	HALMAC_TXDESC_DMA_CHANNEL_UNDEFINE = 0x7F,
+enum halmac_txdesc_dma_ch {
+	HALMAC_TXDESC_DMA_CH0 = 0,
+	HALMAC_TXDESC_DMA_CH1 = 1,
+	HALMAC_TXDESC_DMA_CH2 = 2,
+	HALMAC_TXDESC_DMA_CH3 = 3,
+	HALMAC_TXDESC_DMA_CH4 = 4,
+	HALMAC_TXDESC_DMA_CH5 = 5,
+	HALMAC_TXDESC_DMA_CH6 = 6,
+	HALMAC_TXDESC_DMA_CH7 = 7,
+	HALMAC_TXDESC_DMA_CH8 = 8,
+	HALMAC_TXDESC_DMA_CH9 = 9,
+	HALMAC_TXDESC_DMA_CH10 = 10,
+	HALMAC_TXDESC_DMA_CH11 = 11,
+	HALMAC_TXDESC_DMA_CH12 = 12,
+	HALMAC_TXDESC_DMA_CH13 = 13,
+	HALMAC_TXDESC_DMA_CH14 = 14,
+	HALMAC_TXDESC_DMA_CH15 = 15,
+	HALMAC_TXDESC_DMA_CH16 = 16,
+	HALMAC_TXDESC_DMA_CH17 = 17,
+	HALMAC_TXDESC_DMA_CH18 = 18,
+	HALMAC_TXDESC_DMA_CH19 = 19,
+	HALMAC_TXDESC_DMA_CH20 = 20,
+	HALMAC_TXDESC_DMA_CHMAX,
+	HALMAC_TXDESC_DMA_CHUNDEFINE = 0x7F,
 };
 
 enum halmac_dma_ch {
-	HALMAC_DMA_CH_0 = HALMAC_TXDESC_DMA_CHANNEL_0,
-	HALMAC_DMA_CH_1 = HALMAC_TXDESC_DMA_CHANNEL_1,
-	HALMAC_DMA_CH_2 = HALMAC_TXDESC_DMA_CHANNEL_2,
-	HALMAC_DMA_CH_3 = HALMAC_TXDESC_DMA_CHANNEL_3,
-	HALMAC_DMA_CH_4 = HALMAC_TXDESC_DMA_CHANNEL_4,
-	HALMAC_DMA_CH_5 = HALMAC_TXDESC_DMA_CHANNEL_5,
-	HALMAC_DMA_CH_6 = HALMAC_TXDESC_DMA_CHANNEL_6,
-	HALMAC_DMA_CH_7 = HALMAC_TXDESC_DMA_CHANNEL_7,
-	HALMAC_DMA_CH_8 = HALMAC_TXDESC_DMA_CHANNEL_8,
-	HALMAC_DMA_CH_9 = HALMAC_TXDESC_DMA_CHANNEL_9,
-	HALMAC_DMA_CH_10 = HALMAC_TXDESC_DMA_CHANNEL_10,
-	HALMAC_DMA_CH_11 = HALMAC_TXDESC_DMA_CHANNEL_11,
-	HALMAC_DMA_CH_S0 = HALMAC_TXDESC_DMA_CHANNEL_12,
-	HALMAC_DMA_CH_S1 = HALMAC_TXDESC_DMA_CHANNEL_13,
-	HALMAC_DMA_CH_MGQ = HALMAC_TXDESC_DMA_CHANNEL_14,
-	HALMAC_DMA_CH_HIGH = HALMAC_TXDESC_DMA_CHANNEL_15,
-	HALMAC_DMA_CH_FWCMD = HALMAC_TXDESC_DMA_CHANNEL_16,
-	HALMAC_DMA_CH_MGQ_BAND1 = HALMAC_TXDESC_DMA_CHANNEL_17,
-	HALMAC_DMA_CH_HIGH_BAND1 = HALMAC_TXDESC_DMA_CHANNEL_18,
-	HALMAC_DMA_CH_BCN = HALMAC_TXDESC_DMA_CHANNEL_19,
-	HALMAC_DMA_CH_H2C = HALMAC_TXDESC_DMA_CHANNEL_20,
-	HALMAC_DMA_CH_MAX = HALMAC_TXDESC_DMA_CHANNEL_MAX,
+	HALMAC_DMA_CH_0 = HALMAC_TXDESC_DMA_CH0,
+	HALMAC_DMA_CH_1 = HALMAC_TXDESC_DMA_CH1,
+	HALMAC_DMA_CH_2 = HALMAC_TXDESC_DMA_CH2,
+	HALMAC_DMA_CH_3 = HALMAC_TXDESC_DMA_CH3,
+	HALMAC_DMA_CH_4 = HALMAC_TXDESC_DMA_CH4,
+	HALMAC_DMA_CH_5 = HALMAC_TXDESC_DMA_CH5,
+	HALMAC_DMA_CH_6 = HALMAC_TXDESC_DMA_CH6,
+	HALMAC_DMA_CH_7 = HALMAC_TXDESC_DMA_CH7,
+	HALMAC_DMA_CH_8 = HALMAC_TXDESC_DMA_CH8,
+	HALMAC_DMA_CH_9 = HALMAC_TXDESC_DMA_CH9,
+	HALMAC_DMA_CH_10 = HALMAC_TXDESC_DMA_CH10,
+	HALMAC_DMA_CH_11 = HALMAC_TXDESC_DMA_CH11,
+	HALMAC_DMA_CH_S0 = HALMAC_TXDESC_DMA_CH12,
+	HALMAC_DMA_CH_S1 = HALMAC_TXDESC_DMA_CH13,
+	HALMAC_DMA_CH_MGQ = HALMAC_TXDESC_DMA_CH14,
+	HALMAC_DMA_CH_HIGH = HALMAC_TXDESC_DMA_CH15,
+	HALMAC_DMA_CH_FWCMD = HALMAC_TXDESC_DMA_CH16,
+	HALMAC_DMA_CH_MGQ_BAND1 = HALMAC_TXDESC_DMA_CH17,
+	HALMAC_DMA_CH_HIGH_BAND1 = HALMAC_TXDESC_DMA_CH18,
+	HALMAC_DMA_CH_BCN = HALMAC_TXDESC_DMA_CH19,
+	HALMAC_DMA_CH_H2C = HALMAC_TXDESC_DMA_CH20,
+	HALMAC_DMA_CH_MAX = HALMAC_TXDESC_DMA_CHMAX,
 	HALMAC_DMA_CH_UNDEFINE = 0x7F,
 };
 
@@ -581,11 +756,16 @@ struct halmac_rxagg_cfg {
 };
 
 struct halmac_api_registry {
-	u8 rx_expand_mode_en:1;
+	u8 rx_exp_en:1;
 	u8 la_mode_en:1;
 	u8 cfg_drv_rsvd_pg_en:1;
 	u8 sdio_cmd53_4byte_en:1;
 	u8 rsvd:4;
+};
+
+enum halmac_watcher_sel {
+	HALMAC_WATCHER_SDIO_RN_FOOL_PROOFING = 0x0,
+	HALMAC_WATCHER_UNDEFINE = 0x7F,
 };
 
 enum halmac_trx_mode {
@@ -633,34 +813,34 @@ enum halmac_dlfw_mem {
 };
 
 struct halmac_tx_desc {
-	u32	dword0;
-	u32	dword1;
-	u32	dword2;
-	u32	dword3;
-	u32	dword4;
-	u32	dword5;
-	u32	dword6;
-	u32	dword7;
-	u32	dword8;
-	u32	dword9;
-	u32	dword10;
-	u32	dword11;
+	u32 dword0;
+	u32 dword1;
+	u32 dword2;
+	u32 dword3;
+	u32 dword4;
+	u32 dword5;
+	u32 dword6;
+	u32 dword7;
+	u32 dword8;
+	u32 dword9;
+	u32 dword10;
+	u32 dword11;
 };
 
 struct halmac_rx_desc {
-	u32	dword0;
-	u32	dword1;
-	u32	dword2;
-	u32	dword3;
-	u32	dword4;
-	u32	dword5;
+	u32 dword0;
+	u32 dword1;
+	u32 dword2;
+	u32 dword3;
+	u32 dword4;
+	u32 dword5;
 };
 
 struct halmac_bcn_ie_info {
-	u8	func_en;
-	u8	size_th;
-	u8	timeout;
-	u8	ie_bmp[HALMAC_BCN_IE_BMP_SIZE];
+	u8 func_en;
+	u8 size_th;
+	u8 timeout;
+	u8 ie_bmp[HALMAC_BCN_IE_BMP_SIZE];
 };
 
 enum halmac_parameter_cmd {
@@ -681,29 +861,29 @@ enum halmac_parameter_cmd {
 
 union halmac_parameter_content {
 	struct _MAC_REG_W {
-		u32	value;
-		u32	msk;
-		u16	offset;
-		u8	msk_en;
+		u32 value;
+		u32 msk;
+		u16 offset;
+		u8 msk_en;
 	} MAC_REG_W;
 	struct _BB_REG_W {
-		u32	value;
-		u32	msk;
-		u16	offset;
-		u8	msk_en;
+		u32 value;
+		u32 msk;
+		u16 offset;
+		u8 msk_en;
 	} BB_REG_W;
 	struct _RF_REG_W {
-		u32	value;
-		u32	msk;
-		u8	offset;
-		u8	msk_en;
-		u8	rf_path;
+		u32 value;
+		u32 msk;
+		u8 offset;
+		u8 msk_en;
+		u8 rf_path;
 	} RF_REG_W;
 	struct _DELAY_TIME {
-		u32	rsvd1;
-		u32	rsvd2;
-		u16	delay_time;
-		u8	rsvd3;
+		u32 rsvd1;
+		u32 rsvd2;
+		u16 delay_time;
+		u8 rsvd3;
 	} DELAY_TIME;
 };
 
@@ -713,55 +893,55 @@ struct halmac_phy_parameter_info {
 };
 
 struct halmac_pg_efuse_info {
-	u8 *pEfuse_map;
-	u32	efuse_map_size;
-	u8 *pEfuse_mask;
+	u8 *efuse_map;
+	u32 efuse_map_size;
+	u8 *efuse_mask;
 	u32 efuse_mask_size;
 };
 
-struct halmac_config_para_info {
-	u32 para_buf_size; /* Parameter buffer size */
-	u8 *pCfg_para_buf; /* Buffer for config parameter */
-	u8 *pPara_buf_w; /* Write pointer of the parameter buffer */
-	u32 para_num; /* Parameter numbers in parameter buffer */
-	u32 avai_para_buf_size; /* Free size of parameter buffer */
-	u32 offset_accumulation;
-	u32 value_accumulation;
-	enum halmac_data_type data_type; /*DataType which is passed to FW*/
-	u8 datapack_segment; /*DataPack Segment, from segment0...*/
-	u8 full_fifo_mode; /* Used full tx fifo to save cfg parameter */
+struct halmac_cfg_param_info {
+	u32 buf_size;
+	u8 *buf;
+	u8 *buf_wptr;
+	u32 num;
+	u32 avl_buf_size;
+	u32 offset_accum;
+	u32 value_accum;
+	enum halmac_data_type data_type;
+	u8 full_fifo_mode;
 };
 
-struct halmac_hw_config_info {
-	u32	efuse_size; /* Record efuse size */
-	u32	eeprom_size; /* Record eeprom size */
-	u32 bt_efuse_size; /* Record BT efuse size */
-	u32	tx_fifo_size; /* Record tx fifo size */
-	u32 rx_fifo_size; /* Record rx fifo size */
-	u32 page_size; /* Record page size */
+struct halmac_hw_cfg_info {
+	u32 efuse_size;
+	u32 eeprom_size;
+	u32 bt_efuse_size;
+	u32 tx_fifo_size;
+	u32 rx_fifo_size;
+	u32 rx_desc_fifo_size;
+	u32 page_size;
 	u16 tx_align_size;
-	u8 txdesc_size; /* Record tx desc size */
-	u8 rxdesc_size; /* Record rx desc size */
-	u8 page_size_2_power;
-	u8 cam_entry_num; /* Record CAM entry number */
-	u8 security_check_keyid;
+	u8 txdesc_size;
+	u8 rxdesc_size;
+	u8 cam_entry_num;
+	u8 chk_security_keyid;
 	u8 txdesc_ie_max_num;
 	u8 txdesc_body_size;
 	u8 ac_oqt_size;
 	u8 non_ac_oqt_size;
-	u8 ac_queue_num;
+	u8 acq_num;
 	u8 trx_mode;
 	u8 usb_txagg_num;
+	u32 prtct_efuse_size;
 };
 
 struct halmac_sdio_free_space {
-	u16	high_queue_number; /* Free space of HIQ */
-	u16	normal_queue_number; /* Free space of MIDQ */
-	u16	low_queue_number; /* Free space of LOWQ */
-	u16	public_queue_number; /* Free space of PUBQ */
-	u16	extra_queue_number; /* Free space of EXBQ */
-	u8 ac_oqt_number;
-	u8 non_ac_oqt_number;
+	u16 hiq_pg_num;
+	u16 miq_pg_num;
+	u16 lowq_pg_num;
+	u16 pubq_pg_num;
+	u16 exq_pg_num;
+	u8 ac_oqt_num;
+	u8 non_ac_oqt_num;
 	u8 ac_empty;
 	u8 *macid_map;
 	u32 macid_map_size;
@@ -784,10 +964,14 @@ enum hal_fifo_sel {
 };
 
 enum halmac_drv_info {
-	HALMAC_DRV_INFO_NONE, /* No information is appended in rx_pkt */
-	HALMAC_DRV_INFO_PHY_STATUS, /* PHY status is appended after rx_desc */
-	HALMAC_DRV_INFO_PHY_SNIFFER, /* PHY status and sniffer info are appended after rx_desc */
-	HALMAC_DRV_INFO_PHY_PLCP, /* PHY status and plcp header are appended after rx_desc */
+	/* No information is appended in rx_pkt */
+	HALMAC_DRV_INFO_NONE,
+	/* PHY status is appended after rx_desc */
+	HALMAC_DRV_INFO_PHY_STATUS,
+	/* PHY status and sniffer info are appended after rx_desc */
+	HALMAC_DRV_INFO_PHY_SNIFFER,
+	/* PHY status and plcp header are appended after rx_desc */
+	HALMAC_DRV_INFO_PHY_PLCP,
 	HALMAC_DRV_INFO_UNDEFINE,
 };
 
@@ -833,25 +1017,34 @@ struct halmac_ch_switch_option {
 	u8 dest_ch_en;
 	u8 absolute_time_en;
 	u8 dest_ch;
+	u8 scan_mode_en;
 	u8 normal_period;
 	u8 normal_period_sel;
 	u8 normal_cycle;
 	u8 phase_2_period;
 	u8 phase_2_period_sel;
+	u8 nlo_en;
+};
+
+struct halmac_drop_pkt_option {
+	u8 drop_all:1;
+	u8 drop_single:1;
+	u8 rsvd:6;
+	u8 drop_index;
 };
 
 struct halmac_p2pps {
-	u8  offload_en:1;
-	u8  role:1;
-	u8  ctwindow_en:1;
-	u8  noa_en:1;
-	u8  noa_sel:1;
-	u8  all_sta_sleep:1;
-	u8  discovery:1;
-	u8  disable_close_rf:1;
-	u8  p2p_port_id;
-	u8  p2p_group;
-	u8  p2p_macid;
+	u8 offload_en:1;
+	u8 role:1;
+	u8 ctwindow_en:1;
+	u8 noa_en:1;
+	u8 noa_sel:1;
+	u8 all_sta_sleep:1;
+	u8 discovery:1;
+	u8 disable_close_rf:1;
+	u8 p2p_port_id;
+	u8 p2p_group;
+	u8 p2p_macid;
 	u8 ctwindow_length;
 	u8 rsvd3;
 	u8 rsvd4;
@@ -896,6 +1089,9 @@ struct halmac_general_info {
 	enum halmac_rf_type rf_type;
 	u8 tx_ant_status;
 	u8 rx_ant_status;
+	u8 ext_pa;
+	u8 package_type;
+	u8 mp_mode;
 };
 
 struct halmac_pwr_tracking_para {
@@ -908,12 +1104,18 @@ struct halmac_pwr_tracking_para {
 struct halmac_pwr_tracking_option {
 	u8 type;
 	u8 bbswing_index;
-	struct halmac_pwr_tracking_para pwr_tracking_para[4]; /* pathA, pathB, pathC, pathD */
+	/* pathA, pathB, pathC, pathD */
+	struct halmac_pwr_tracking_para pwr_tracking_para[4];
 };
 
 struct halmac_fast_edca_cfg {
 	enum halmac_acq_id acq_id;
 	u8 queue_to; /* unit : 32us*/
+};
+
+struct halmac_txfifo_lifetime_cfg {
+	u8 enable;
+	u32 lifetime;
 };
 
 enum halmac_data_rate {
@@ -1012,14 +1214,9 @@ enum halmac_rf_path {
 	HALMAC_RF_PATH_A,
 	HALMAC_RF_PATH_B,
 	HALMAC_RF_PATH_C,
-	HALMAC_RF_PATH_D
-};
-
-enum halmac_snd_pkt_sel {
-	HALMAC_UNI_NDPA,
-	HALMAC_BMC_NDPA,
-	HALMAC_NON_FINAL_BFRPRPOLL,
-	HALMAC_FINAL_BFRPTPOLL,
+	HALMAC_RF_PATH_D,
+	HALMAC_RF_SYN_0,
+	HALMAC_RF_SYN_1
 };
 
 enum hal_security_type {
@@ -1077,7 +1274,10 @@ enum halmac_feature_id {
 	HALMAC_FEATURE_CFG_PARA,                /* Support */
 	HALMAC_FEATURE_DUMP_PHYSICAL_EFUSE,     /* Support */
 	HALMAC_FEATURE_DUMP_LOGICAL_EFUSE,      /* Support */
+	HALMAC_FEATURE_DUMP_LOGICAL_EFUSE_MASK, /* Support */
 	HALMAC_FEATURE_UPDATE_PACKET,           /* Support */
+	HALMAC_FEATURE_SEND_SCAN_PACKET,        /* Support */
+	HALMAC_FEATURE_DROP_SCAN_PACKET,        /* Support */
 	HALMAC_FEATURE_UPDATE_DATAPACK,
 	HALMAC_FEATURE_RUN_DATAPACK,
 	HALMAC_FEATURE_CHANNEL_SWITCH,  /* Support */
@@ -1095,6 +1295,7 @@ enum halmac_drv_rsvd_pg_num {
 	HALMAC_RSVD_PG_NUM32,   /* 4K */
 	HALMAC_RSVD_PG_NUM64,   /* 8K */
 	HALMAC_RSVD_PG_NUM128,  /* 16K */
+	HALMAC_RSVD_PG_NUM256,  /* 32K */
 };
 
 enum halmac_pcie_cfg {
@@ -1109,7 +1310,7 @@ enum halmac_portid {
 	HALMAC_PORTID2 = 2,
 	HALMAC_PORTID3 = 3,
 	HALMAC_PORTID4 = 4,
-	HALMAC_PORTIDMAX
+	HALMAC_PORTID_NUM = 5,
 };
 
 struct halmac_bcn_ctrl {
@@ -1122,65 +1323,77 @@ struct halmac_bcn_ctrl {
 	u8 en_p2p_bcn_area;
 };
 
-/* User can not use members in Address_L_H, use Address[6] is mandatory */
+/* User only can use  Address[6]*/
+/* Address[0] is lowest, Address[5] is highest */
 union halmac_wlan_addr {
-	u8 Address[6]; /* WLAN address (MACID, BSSID, Brodcast ID). Address[0] is lowest, Address[5] is highest*/
+	u8 addr[6];
 	struct {
 		union {
-			u32	Address_Low;
-			u8 Address_Low_B[4];
+			__le32 low;
+			u8 low_byte[4];
 		};
 		union {
-			u16	Address_High;
-			u8 Address_High_B[2];
+			__le16 high;
+			u8 high_byte[2];
 		};
-	} Address_L_H;
+	} addr_l_h;
 };
 
 struct halmac_platform_api {
 	/* R/W register */
-	u8 (*SDIO_CMD52_READ)(void *pDriver_adapter, u32 offset);
-	u8 (*SDIO_CMD53_READ_8)(void *pDriver_adapter, u32 offset);
-	u16 (*SDIO_CMD53_READ_16)(void *pDriver_adapter, u32 offset);
-	u32 (*SDIO_CMD53_READ_32)(void *pDriver_adapter, u32 offset);
-	u8 (*SDIO_CMD53_READ_N)(void *pDriver_adapter, u32 offset, u32 size, u8 *data);
-	void (*SDIO_CMD52_WRITE)(void *pDriver_adapter, u32 offset, u8 value);
-	void (*SDIO_CMD53_WRITE_8)(void *pDriver_adapter, u32 offset, u8 value);
-	void (*SDIO_CMD53_WRITE_16)(void *pDriver_adapter, u32 offset, u16 value);
-	void (*SDIO_CMD53_WRITE_32)(void *pDriver_adapter, u32 offset, u32 value);
-	u8 (*REG_READ_8)(void *pDriver_adapter, u32 offset);
-	u16 (*REG_READ_16)(void *pDriver_adapter, u32 offset);
-	u32 (*REG_READ_32)(void *pDriver_adapter, u32 offset);
-	void (*REG_WRITE_8)(void *pDriver_adapter, u32 offset, u8 value);
-	void (*REG_WRITE_16)(void *pDriver_adapter, u32 offset, u16 value);
-	void (*REG_WRITE_32)(void *pDriver_adapter, u32 offset, u32 value);
-	u8 (*SDIO_CMD52_CIA_READ)(void *pDriver_adapter, u32 offset);
+	u8 (*SDIO_CMD52_READ)(void *drv_adapter, u32 offset);
+	u8 (*SDIO_CMD53_READ_8)(void *drv_adapter, u32 offset);
+	u16 (*SDIO_CMD53_READ_16)(void *drv_adapter, u32 offset);
+	u32 (*SDIO_CMD53_READ_32)(void *drv_adapter, u32 offset);
+	u8 (*SDIO_CMD53_READ_N)(void *drv_adapter, u32 offset, u32 size,
+				u8 *data);
+	void (*SDIO_CMD52_WRITE)(void *drv_adapter, u32 offset, u8 value);
+	void (*SDIO_CMD53_WRITE_8)(void *drv_adapter, u32 offset, u8 value);
+	void (*SDIO_CMD53_WRITE_16)(void *drv_adapter, u32 offset, u16 value);
+	void (*SDIO_CMD53_WRITE_32)(void *drv_adapter, u32 offset, u32 value);
+	u8 (*REG_READ_8)(void *drv_adapter, u32 offset);
+	u16 (*REG_READ_16)(void *drv_adapter, u32 offset);
+	u32 (*REG_READ_32)(void *drv_adapter, u32 offset);
+	void (*REG_WRITE_8)(void *drv_adapter, u32 offset, u8 value);
+	void (*REG_WRITE_16)(void *drv_adapter, u32 offset, u16 value);
+	void (*REG_WRITE_32)(void *drv_adapter, u32 offset, u32 value);
+	u8 (*SDIO_CMD52_CIA_READ)(void *drv_adapter, u32 offset);
 
-	/* send pBuf to reserved page, the tx_desc is not included in pBuf, driver need to fill tx_desc with qsel = bcn */
-	u8 (*SEND_RSVD_PAGE)(void *pDriver_adapter, u8 *pBuf, u32 size);
-	/* send pBuf to h2c queue, the tx_desc is not included in pBuf, driver need to fill tx_desc with qsel = h2c */
-	u8 (*SEND_H2C_PKT)(void *pDriver_adapter, u8 *pBuf, u32 size);
-	/* send pBuf to fw cmd queue, the tx_desc is not included in pBuf, driver need to fill tx_desc with qsel = h2c */
-	u8 (*SEND_FWCMD)(void *pDriver_adapter, u8 *pBuf, u32 size);
+	/* send pBuf to reserved page, the tx_desc is not included in pBuf */
+	/* driver need to fill tx_desc with qsel = bcn */
+	u8 (*SEND_RSVD_PAGE)(void *drv_adapter, u8 *buf, u32 size);
+	/* send pBuf to h2c queue, the tx_desc is not included in pBuf */
+	/* driver need to fill tx_desc with qsel = h2c */
+	u8 (*SEND_H2C_PKT)(void *drv_adapter, u8 *buf, u32 size);
 
-	u8 (*RTL_FREE)(void *pDriver_adapter, void *pBuf, u32 size);
-	void* (*RTL_MALLOC)(void *pDriver_adapter, u32 size);
-	u8 (*RTL_MEMCPY)(void *pDriver_adapter, void *dest, void *src, u32 size);
-	u8 (*RTL_MEMSET)(void *pDriver_adapter, void *pAddress, u8 value, u32 size);
-	void (*RTL_DELAY_US)(void *pDriver_adapter, u32 us);
+	u8 (*RTL_FREE)(void *drv_adapter, void *buf, u32 size);
+	void* (*RTL_MALLOC)(void *drv_adapter, u32 size);
+	u8 (*RTL_MEMCPY)(void *drv_adapter, void *dest, void *src, u32 size);
+	u8 (*RTL_MEMSET)(void *drv_adapter, void *addr, u8 value, u32 size);
+	void (*RTL_DELAY_US)(void *drv_adapter, u32 us);
 
-	u8 (*MUTEX_INIT)(void *pDriver_adapter, HALMAC_MUTEX *pMutex);
-	u8 (*MUTEX_DEINIT)(void *pDriver_adapter, HALMAC_MUTEX *pMutex);
-	u8 (*MUTEX_LOCK)(void *pDriver_adapter, HALMAC_MUTEX *pMutex);
-	u8 (*MUTEX_UNLOCK)(void *pDriver_adapter, HALMAC_MUTEX *pMutex);
+	u8 (*MUTEX_INIT)(void *drv_adapter, HALMAC_MUTEX *mutex);
+	u8 (*MUTEX_DEINIT)(void *drv_adapter, HALMAC_MUTEX *mutex);
+	u8 (*MUTEX_LOCK)(void *drv_adapter, HALMAC_MUTEX *mutex);
+	u8 (*MUTEX_UNLOCK)(void *drv_adapter, HALMAC_MUTEX *mutex);
 
-	u8 (*MSG_PRINT)(void *pDriver_adapter, u32 msg_type, u8 msg_level, s8 *fmt, ...);
-	u8 (*BUFF_PRINT)(void *pDriver_adapter, u32 msg_type, u8 msg_level, s8 *buf, u32 size);
+	u8 (*MSG_PRINT)(void *drv_adapter, u32 msg_type, u8 msg_level,
+			s8 *fmt, ...);
+	u8 (*BUFF_PRINT)(void *drv_adapter, u32 msg_type, u8 msg_level, s8 *buf,
+			 u32 size);
 
-	u8 (*EVENT_INDICATION)(void *pDriver_adapter, enum halmac_feature_id feature_id, enum halmac_cmd_process_status process_status, u8 *buf, u32 size);
-
+	u8 (*EVENT_INDICATION)(void *drv_adapter,
+			       enum halmac_feature_id feature_id,
+			       enum halmac_cmd_process_status process_status,
+			       u8 *buf, u32 size);
+#if HALMAC_DBG_MONITOR_IO
+	void (*READ_MONITOR)(void *drv_adapter, u32 offset, u32 byte, u32 val,
+			     const char *caller, const u32 line);
+	void (*WRITE_MONITOR)(void *drv_adapter, u32 offset, u32 byte, u32 val,
+			      const char *caller, const u32 line);
+#endif
 #if HALMAC_PLATFORM_TESTPROGRAM
-	struct halmisc_platform_api *pHalmisc_platform_api;
+	struct halmisc_platform_api *halmisc_pltfm_api;
 #endif
 };
 
@@ -1228,43 +1441,53 @@ struct halmac_mu_bfer_init_para {
 	union halmac_wlan_addr bfer_address;
 };
 
-struct halmac_snd_info {
-	u16 paid;
-	u8 userid;
-	enum halmac_data_rate ndpa_rate;
-	u16 csi_para;
-	u16 my_aid;
-	enum halmac_data_rate csi_rate;
-	enum halmac_csi_seg_len csi_length_sel;
-	enum halmac_snd_role role;
-	union halmac_wlan_addr bfer_address;
-	enum halmac_bw bw;
-	u8 txbf_en;
-	struct halmac_su_bfer_init_para *pSu_bfer_init;
-	struct halmac_mu_bfer_init_para *pMu_bfer_init;
-	struct halmac_mu_bfee_init_para *pMu_bfee_init;
+struct halmac_ch_sw_info {
+	u8 *buf;
+	u8 *buf_wptr;
+	u8 scan_mode;
+	u8 extra_info_en;
+	u32 buf_size;
+	u32 avl_buf_size;
+	u32 total_size;
+	u32 ch_num;
 };
 
-struct halmac_cs_info {
-	u8 *ch_info_buf;
-	u8 *ch_info_buf_w;
-	u8 extra_info_en;
-	u32	buf_size;       /* buffer size */
-	u32	avai_buf_size;  /* buffer size */
-	u32	total_size;
-	u32	accu_timeout;
-	u32	ch_num;
+struct halmac_ch_sw_extra_scan {
+	u8 dwell_ext_val:7;
+	u8 dwell_ext_en:1;
+	u8 dwell_ext_c2h:1;
+	u8 post_tx_c2h:1;
+	u8 pre_tx_c2h:1;
+	u8 post_switch_c2h:1;
+	u8 pre_switch_c2h:1;
+	u8 rsvd0:2;
+	u8 wait_probrsp:1;
+	u8 txid:7;
+	u8 rsvd1:1;
+};
+
+struct halmac_scan_rpt_info {
+	u8 *buf;
+	u8 *buf_wptr;
+	u32 buf_size;
+	u32 avl_buf_size;
+	u32 total_size;
+	u32 ack_tsf_low;
+	u32 ack_tsf_high;
+	u32 rpt_tsf_low;
+	u32 rpt_tsf_high;
 };
 
 struct halmac_event_trigger {
-	u32	physical_efuse_map : 1;
-	u32	logical_efuse_map : 1;
-	u32	rsvd1 : 28;
+	u32 phy_efuse_map : 1;
+	u32 log_efuse_map : 1;
+	u32 log_efuse_mask : 1;
+	u32 rsvd1 : 27;
 };
 
 struct halmac_h2c_header_info {
-	u16	sub_cmd_id;
-	u16	content_size;
+	u16 sub_cmd_id;
+	u16 content_size;
 	u8 ack;
 };
 
@@ -1420,6 +1643,14 @@ enum halmac_api_id {
 	HALMAC_API_FW_SNDING = 0x98,
 	HALMAC_API_ENTER_CPU_SLEEP_MODE = 0x99,
 	HALMAC_API_GET_CPU_MODE = 0x9A,
+	HALMAC_API_DRV_FWCTRL = 0x9B,
+	HALMAC_API_EN_REF_AUTOK = 0x9C,
+	HALMAC_API_RESET_WIFI_FW = 0x9D,
+	HALMAC_API_CFGSPC_SET_PCIE = 0x9E,
+	HALMAC_API_GET_WATCHER = 0x9F,
+	HALMAC_API_DUMP_LOGICAL_EFUSE_MASK = 0xA0,
+	HALMAC_API_READ_WIFI_PHY_EFUSE = 0xA1,
+	HALMAC_API_WRITE_WIFI_PHY_EFUSE = 0xA2,
 	HALMAC_API_MAX
 };
 
@@ -1453,8 +1684,15 @@ enum halmac_usb_mode {
 };
 
 enum halmac_sdio_tx_format {
-	HALMAC_SDIO_DATA_MODE = 1,
-	HALMAC_SDIO_DUMMY_MODE = 2,
+	HALMAC_SDIO_AGG_MODE = 1,
+	HALMAC_SDIO_DUMMY_BLOCK_MODE = 2,
+	HALMAC_SDIO_DUMMY_AUTO_MODE = 3,
+};
+
+enum halmac_sdio_clk_monitor {
+	HALMAC_MONITOR_5US = 1,
+	HALMAC_MONITOR_50US = 2,
+	HALMAC_MONITOR_9MS = 3,
 };
 
 enum halmac_hw_id {
@@ -1485,13 +1723,13 @@ enum halmac_hw_id {
 	HALMAC_HW_TX_PAGE_SIZE = 0x17,
 	HALMAC_HW_USB_TXAGG_DESC_NUM = 0x18,
 	HALMAC_HW_WLAN_EFUSE_AVAILABLE_SIZE = 0x19,
-	HALMAC_HW_HIOE_INST_START = 0x1A,
-	HALMAC_HW_HIOE_INST_END = 0x1B,
 	HALMAC_HW_AC_OQT_SIZE = 0x1C,
 	HALMAC_HW_NON_AC_OQT_SIZE = 0x1D,
 	HALMAC_HW_AC_QUEUE_NUM = 0x1E,
 	HALMAC_HW_RQPN_CH_MAPPING = 0x1F,
 	HALMAC_HW_PWR_STATE = 0x20,
+	HALMAC_HW_SDIO_INT_LAT = 0x21,
+	HALMAC_HW_SDIO_CLK_CNT = 0x22,
 	/* Set HW value */
 	HALMAC_HW_USB_MODE = 0x60,
 	HALMAC_HW_SEQ_EN = 0x61,
@@ -1508,6 +1746,13 @@ enum halmac_hw_id {
 	HALMAC_HW_RX_IGNORE = 0x6C,
 	HALMAC_HW_SDIO_TX_FORMAT = 0x6D,
 	HALMAC_HW_FAST_EDCA = 0x6E,
+	HALMAC_HW_LDO25_EN = 0x6F,
+	HALMAC_HW_PCIE_REF_AUTOK = 0x70,
+	HALMAC_HW_RTS_FULL_BW = 0x71,
+	HALMAC_HW_FREE_CNT_EN = 0x72,
+	HALMAC_HW_SDIO_WT_EN = 0x73,
+	HALMAC_HW_SDIO_CLK_MONITOR = 0x74,
+	HALMAC_HW_TXFIFO_LIFETIME = 0x75,
 	HALMAC_HW_ID_UNDEFINE = 0x7F,
 };
 
@@ -1545,6 +1790,14 @@ enum halmac_gpio_func {
 	HALMAC_GPIO_FUNC_SW_IO_13 = 15,
 	HALMAC_GPIO_FUNC_SW_IO_14 = 16,
 	HALMAC_GPIO_FUNC_SW_IO_15 = 17,
+	HALMAC_GPIO_FUNC_BT_HOST_WAKE1 = 18,
+	HALMAC_GPIO_FUNC_BT_DEV_WAKE1 = 19,
+	HALMAC_GPIO_FUNC_S0_PAPE = 20,
+	HALMAC_GPIO_FUNC_S1_PAPE = 21,
+	HALMAC_GPIO_FUNC_S0_TRSW = 22,
+	HALMAC_GPIO_FUNC_S1_TRSW = 23,
+	HALMAC_GPIO_FUNC_S0_TRSWB = 24,
+	HALMAC_GPIO_FUNC_S1_TRSWB = 25,
 	HALMAC_GPIO_FUNC_UNDEFINE = 0X7F,
 };
 
@@ -1557,7 +1810,6 @@ enum halmac_wlled_mode {
 };
 
 enum halmac_psf_fcs_chk_thr {
-	HALMAC_PSF_FCS_CHK_THR_1 = 0,
 	HALMAC_PSF_FCS_CHK_THR_4 = 1,
 	HALMAC_PSF_FCS_CHK_THR_8 = 2,
 	HALMAC_PSF_FCS_CHK_THR_12 = 3,
@@ -1567,26 +1819,88 @@ enum halmac_psf_fcs_chk_thr {
 	HALMAC_PSF_FCS_CHK_THR_28 = 7,
 };
 
+enum halmac_func_ctrl {
+	HALMAC_DISABLE = 0,
+	HALMAC_ENABLE = 1,
+	HALMAC_DEFAULT = 0xFE,
+	HALMAC_IGNORE = 0xFF
+};
+
+enum halmac_pcie_clkdly {
+	HALMAC_CLKDLY_0 = 0,
+	HALMAC_CLKDLY_5US = 1,
+	HALMAC_CLKDLY_6US = 2,
+	HALMAC_CLKDLY_11US = 3,
+	HALMAC_CLKDLY_15US = 4,
+	HALMAC_CLKDLY_19US = 5,
+	HALMAC_CLKDLY_25US = 6,
+	HALMAC_CLKDLY_30US = 7,
+	HALMAC_CLKDLY_38US = 8,
+	HALMAC_CLKDLY_50US = 9,
+	HALMAC_CLKDLY_64US = 10,
+	HALMAC_CLKDLY_100US = 11,
+	HALMAC_CLKDLY_128US = 12,
+	HALMAC_CLKDLY_150US = 13,
+	HALMAC_CLKDLY_192US = 14,
+	HALMAC_CLKDLY_200US = 15,
+	HALMAC_CLKDLY_R_ERR = 0xFD,
+	HALMAC_CLKDLY_DEF = 0xFE,
+	HALMAC_CLKDLY_IGNORE = 0xFF
+};
+
+enum halmac_pcie_l1dly {
+	HALMAC_L1DLY_16US = 0,
+	HALMAC_L1DLY_32US = 1,
+	HALMAC_L1DLY_64US = 2,
+	HALMAC_L1DLY_INFI = 3,
+	HALMAC_L1DLY_R_ERR = 0xFD,
+	HALMAC_L1DLY_DEF = 0xFE,
+	HALMAC_L1DLY_IGNORE = 0xFF
+};
+
+enum halmac_pcie_l0sdly {
+	HALMAC_L0SDLY_1US = 0,
+	HALMAC_L0SDLY_3US = 1,
+	HALMAC_L0SDLY_5US = 2,
+	HALMAC_L0SDLY_7US = 3,
+	HALMAC_L0SDLY_R_ERR = 0xFD,
+	HALMAC_L0SDLY_DEF = 0xFE,
+	HALMAC_L0SDLY_IGNORE = 0xFF
+};
+
+struct halmac_pcie_cfgspc_param {
+	u8 write;
+	u8 read;
+	enum halmac_func_ctrl l0s_ctrl;
+	enum halmac_func_ctrl l1_ctrl;
+	enum halmac_func_ctrl l1ss_ctrl;
+	enum halmac_func_ctrl wake_ctrl;
+	enum halmac_func_ctrl crq_ctrl;
+	enum halmac_pcie_clkdly clkdly_ctrl;
+	enum halmac_pcie_l0sdly l0sdly_ctrl;
+	enum halmac_pcie_l1dly l1dly_ctrl;
+};
+
 struct halmac_txff_allocation {
 	u16 tx_fifo_pg_num;
 	u16 rsvd_pg_num;
 	u16 rsvd_drv_pg_num;
-	u16 ac_q_pg_num;
+	u16 acq_pg_num;
 	u16 high_queue_pg_num;
 	u16 low_queue_pg_num;
 	u16 normal_queue_pg_num;
 	u16 extra_queue_pg_num;
 	u16 pub_queue_pg_num;
-	u16 rsvd_pg_bndy;
-	u16	rsvd_drv_pg_bndy;
-	u16	rsvd_h2c_extra_info_pg_bndy;
-	u16 rsvd_h2c_static_info_pg_bndy;
-	u16	rsvd_h2c_queue_pg_bndy;
-	u16	rsvd_cpu_instr_pg_bndy;
-	u16	rsvd_fw_txbuff_pg_bndy;
-	u16 rsvd_csibuf_pg_bndy;
+	u16 rsvd_boundary;
+	u16 rsvd_drv_addr;
+	u16 rsvd_h2c_info_addr;
+	u16 rsvd_h2c_sta_info_addr;
+	u16 rsvd_h2cq_addr;
+	u16 rsvd_cpu_instr_addr;
+	u16 rsvd_fw_txbuf_addr;
+	u16 rsvd_csibuf_addr;
 	enum halmac_la_mode la_mode;
-	enum halmac_rx_fifo_expanding_mode rx_fifo_expanding_mode;
+	enum halmac_rx_fifo_expanding_mode rx_fifo_exp_mode;
 };
 
 struct halmac_rqpn_map {
@@ -1625,19 +1939,19 @@ struct halmac_cam_entry_info {
 };
 
 struct halmac_cam_entry_format {
-	u16	key_id : 2;
-	u16	type : 3;
-	u16	mic : 1;
-	u16	grp : 1;
-	u16	spp_mode : 1;
-	u16	rpt_md : 1;
-	u16	ext_sectype : 1;
+	u16 key_id : 2;
+	u16 type : 3;
+	u16 mic : 1;
+	u16 grp : 1;
+	u16 spp_mode : 1;
+	u16 rpt_md : 1;
+	u16 ext_sectype : 1;
 	u16 mgnt : 1;
-	u16	rsvd1 : 4;
+	u16 rsvd1 : 4;
 	u16 valid : 1;
 	u8 mac_address[6];
-	u32	key[4];
-	u32	rsvd[2];
+	u32 key[4];
+	u32 rsvd[2];
 };
 
 struct halmac_tx_page_threshold_info {
@@ -1648,6 +1962,9 @@ struct halmac_tx_page_threshold_info {
 
 struct halmac_ampdu_config {
 	u8 max_agg_num;
+	u8 max_len_en;
+	u32 ht_max_len;
+	u32 vht_max_len;
 };
 
 struct halmac_rqpn {
@@ -1681,7 +1998,7 @@ struct halmac_pg_num {
 
 struct halmac_ch_pg_num {
 	enum halmac_trx_mode mode;
-	u16 ch_num[HALMAC_TXDESC_DMA_CHANNEL_16 + 1];
+	u16 ch_num[HALMAC_TXDESC_DMA_CH16 + 1];
 	u16 gap_num;
 };
 
@@ -1698,11 +2015,11 @@ struct halmac_iqk_para {
 	u8 segment_iqk;
 };
 
-struct halmac_txdesc_ie_para {
-	u8 *pStart_offset;
-	u8 *pEnd_offset;
-	u8 *pHalDesc_ie_offset;
-	u8 *pHalDesc_ie_exist;
+struct halmac_txdesc_ie_param {
+	u8 *start_offset;
+	u8 *end_offset;
+	u8 *ie_offset;
+	u8 *ie_exist;
 };
 
 struct halmac_sdio_hw_info {
@@ -1711,7 +2028,9 @@ struct halmac_sdio_hw_info {
 	u8 io_hi_speed_flag; /* Halmac internal use */
 	enum halmac_sdio_tx_format tx_addr_format;
 	u16 block_size;
-	u8 io_wait_ready_flag; /* Halmac internal use */
+	u8 tx_seq;
+	u8 io_indir_flag; /* Halmac internal use */
+	u8 io_warn_flag; /* SW */
 };
 
 struct halmac_edca_para {
@@ -1723,14 +2042,34 @@ struct halmac_edca_para {
 struct halmac_mac_rx_ignore_cfg {
 	u8 hdr_chk_en;
 	u8 fcs_chk_en;
+	u8 cck_rst_en;
 	enum halmac_psf_fcs_chk_thr fcs_chk_thr;
+};
+
+struct halmac_rx_ignore_info {
+	u8 hdr_chk_mask;
+	u8 fcs_chk_mask;
+	u8 hdr_chk_en;
+	u8 fcs_chk_en;
+	u8 cck_rst_en;
+	enum halmac_psf_fcs_chk_thr fcs_chk_thr;
+};
+
+struct halmac_get_watcher {
+	u32 sdio_rn_not_align;
+};
+
+struct halmac_watcher {
+	struct halmac_get_watcher get_watcher;
 };
 
 struct halmac_pinmux_info {
 	/* byte0 */
 	u8 wl_led:1;
 	u8 sdio_int:1;
-	u8 rsvd1:6;
+	u8 bt_host_wake:1;
+	u8 bt_dev_wake:1;
+	u8 rsvd1:4;
 	/* byte1 */
 	u8 sw_io_0:1;
 	u8 sw_io_1:1;
@@ -1749,6 +2088,13 @@ struct halmac_pinmux_info {
 	u8 sw_io_13:1;
 	u8 sw_io_14:1;
 	u8 sw_io_15:1;
+	/* byte3 */
+	u8 s0_trsw:1;
+	u8 s1_trsw:1;
+	u8 s0_pape:1;
+	u8 s1_pape:1;
+	u8 s0_trswb:1;
+	u8 s1_trswb:1;
 };
 
 struct halmac_ofld_func_info {
@@ -1756,9 +2102,14 @@ struct halmac_ofld_func_info {
 	u32 rsvd_pg_drv_buf_max_sz;
 };
 
+struct halmac_pltfm_cfg_info {
+	u32 malloc_size;
+	u32 rsvd_pg_size;
+};
+
 struct halmac_su_snding_info {
 	u8 su0_en;
-	u8 *pSu0_ndpa_pkt;
+	u8 *su0_ndpa_pkt;
 	u32 su0_pkt_sz;
 };
 
@@ -1766,225 +2117,536 @@ struct halmac_mu_snding_info {
 	u8 tmp;
 };
 
+struct halmac_h2c_info {
+	u32 buf_fs;
+	u32 buf_size;
+	u8 seq_num;
+};
+
 struct halmac_adapter {
-	enum halmac_dma_mapping halmac_ptcl_queue[HALMAC_PTCL_QUEUE_NUM]; /* Dma mapping of protocol queues */
-	enum halmac_dma_ch halmac_ptcl_ch_map[HALMAC_PTCL_QUEUE_NUM]; /* Channel mapping of protocol queues */
-	union halmac_wlan_addr pHal_mac_addr[HALMAC_PORTIDMAX]; /* mac address information, suppot 5 ports */
-	union halmac_wlan_addr pHal_bss_addr[HALMAC_PORTIDMAX]; /* bss address information, suppot 5 ports */
-	union halmac_wlan_addr pHal_tx_addr[HALMAC_PORTIDMAX]; /* transmit address information, suppot 5 ports */
-	HALMAC_MUTEX h2c_seq_mutex; /* Protect h2c_packet_seq packet*/
-	HALMAC_MUTEX EfuseMutex; /* Protect Efuse map memory of halmac_adapter */
-	struct halmac_config_para_info config_para_info;
-	struct halmac_cs_info ch_sw_info;
-	struct halmac_event_trigger event_trigger;
-	struct halmac_hw_config_info hw_cfg_info; /* HW related information */
-	struct halmac_sdio_free_space sdio_free_space;
-	struct halmac_snd_info snd_info;
+	enum halmac_dma_mapping pq_map[HALMAC_PQ_MAP_NUM];
+	enum halmac_dma_ch ch_map[HALMAC_PQ_MAP_NUM];
+	HALMAC_MUTEX h2c_seq_mutex; /* protect h2c seq num */
+	HALMAC_MUTEX efuse_mutex; /*protect adapter efuse map */
+	HALMAC_MUTEX sdio_indir_mutex; /*protect sdio indirect access */
+	struct halmac_cfg_param_info cfg_param_info;
+	struct halmac_ch_sw_info ch_sw_info;
+	struct halmac_scan_rpt_info scan_rpt_info;
+	struct halmac_event_trigger evnt;
+	struct halmac_hw_cfg_info hw_cfg_info;
+	struct halmac_sdio_free_space sdio_fs;
 	struct halmac_api_registry api_registry;
 	struct halmac_pinmux_info pinmux_info;
-	struct halmac_ofld_func_info ofld_func_info;
-	void *pHalAdapter_backup; /* Backup HalAdapter address */
-	void *pDriver_adapter; /* Driver or FW adapter address. Do not write this memory*/
+	struct halmac_pltfm_cfg_info pltfm_info;
+	struct halmac_h2c_info h2c_info;
+	void *drv_adapter;
 	u8 *efuse_map;
-	void *pHalmac_api; /* Record function pointer of halmac api */
-	struct halmac_platform_api *pHalmac_platform_api; /* Record function pointer of platform api */
-	u32 efuse_end; /* Record efuse used memory */
-	u32 h2c_buf_free_space;
-	u32	h2c_buff_size;
-	u32	max_download_size;
-	enum halmac_chip_id chip_id; /* Chip ID, 8822B, 8821C... */
-	enum halmac_chip_ver chip_version; /* A cut, B cut... */
-	struct halmac_fw_version fw_version;
+	void *halmac_api;
+	struct halmac_platform_api *pltfm_api;
+	u32 efuse_end;
+	u32 dlfw_pkt_size;
+	enum halmac_chip_id chip_id;
+	enum halmac_chip_ver chip_ver;
+	struct halmac_fw_version fw_ver;
 	struct halmac_state halmac_state;
-	enum halmac_interface halmac_interface; /* Interface information, get from driver */
-	enum halmac_trx_mode trx_mode; /* Noraml, WMM, P2P, LoopBack... */
-	struct halmac_txff_allocation txff_allocation;
-	u8 h2c_packet_seq; /* current h2c packet sequence number */
-	u16 ack_h2c_packet_seq; /*the acked h2c packet sequence number */
-	u8 hal_efuse_map_valid;
-	u8 efuse_segment_size;
-	u8 rpwm_record; /* record rpwm value */
-	u8 low_clk; /*LPS 32K or IPS 32K*/
-	u8 halmac_bulkout_num; /* USB bulkout num */
+	enum halmac_interface intf;
+	enum halmac_trx_mode trx_mode;
+	struct halmac_txff_allocation txff_alloc;
+	u8 efuse_map_valid;
+	u8 efuse_seg_size;
+	u8 rpwm;
+	u8 bulkout_num;
 	u8 drv_info_size;
 	enum halmac_sdio_cmd53_4byte_mode sdio_cmd53_4byte;
 	struct halmac_sdio_hw_info sdio_hw_info;
 	u8 tx_desc_transfer;
 	u8 tx_desc_checksum;
 	u8 efuse_auto_check_en;
+	u8 pcie_refautok_en;
+	u8 pwr_off_flow_flag;
+	u8 nlo_flag;
+	struct halmac_rx_ignore_info rx_ignore_info;
+	struct halmac_watcher watcher;
 #if HALMAC_PLATFORM_TESTPROGRAM
-	struct halmisc_adapter *pHalmisc_adapter;
+	struct halmisc_adapter *halmisc_adapter;
 #endif
 };
 
-/* Function pointer of  Hal mac API */
 struct halmac_api {
-	enum halmac_ret_status (*halmac_register_api)(struct halmac_adapter *adapter, struct halmac_api_registry *pApi_registry);
-	enum halmac_ret_status (*halmac_mac_power_switch)(struct halmac_adapter *adapter, enum halmac_mac_power halmac_power);
-	enum halmac_ret_status (*halmac_download_firmware)(struct halmac_adapter *adapter, u8 *pHamacl_fw, u32 halmac_fw_size);
-	enum halmac_ret_status (*halmac_free_download_firmware)(struct halmac_adapter *adapter, enum halmac_dlfw_mem dlfw_mem, u8 *pHamacl_fw, u32 halmac_fw_size);
-	enum halmac_ret_status (*halmac_get_fw_version)(struct halmac_adapter *adapter, struct halmac_fw_version *pFw_version);
-	enum halmac_ret_status (*halmac_cfg_mac_addr)(struct halmac_adapter *adapter, u8 port, union halmac_wlan_addr *addr);
-	enum halmac_ret_status (*halmac_cfg_bssid)(struct halmac_adapter *adapter, u8 port, union halmac_wlan_addr *addr);
-	enum halmac_ret_status (*halmac_cfg_multicast_addr)(struct halmac_adapter *adapter, union halmac_wlan_addr *addr);
-	enum halmac_ret_status (*halmac_pre_init_system_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_init_system_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_init_trx_cfg)(struct halmac_adapter *adapter, enum halmac_trx_mode Mode);
-	enum halmac_ret_status (*halmac_init_h2c)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_cfg_rx_aggregation)(struct halmac_adapter *adapter, struct halmac_rxagg_cfg *phalmac_rxagg_cfg);
-	enum halmac_ret_status (*halmac_init_protocol_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_init_edca_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_cfg_operation_mode)(struct halmac_adapter *adapter, enum halmac_wireless_mode mode);
-	enum halmac_ret_status (*halmac_cfg_ch_bw)(struct halmac_adapter *adapter, u8 ch, enum halmac_pri_ch_idx idx, enum halmac_bw bw);
-	enum halmac_ret_status (*halmac_cfg_bw)(struct halmac_adapter *adapter, enum halmac_bw bw);
-	enum halmac_ret_status (*halmac_init_wmac_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_init_mac_cfg)(struct halmac_adapter *adapter, enum halmac_trx_mode Mode);
-	enum halmac_ret_status (*halmac_init_interface_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_deinit_interface_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_init_sdio_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_init_usb_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_init_pcie_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_deinit_sdio_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_deinit_usb_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_deinit_pcie_cfg)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_write_efuse)(struct halmac_adapter *adapter, u32 halmac_offset, u8 halmac_value);
-	enum halmac_ret_status (*halmac_read_efuse)(struct halmac_adapter *adapter, u32 halmac_offset, u8 *pValue);
-	enum halmac_ret_status (*halmac_get_efuse_size)(struct halmac_adapter *adapter, u32 *halmac_size);
-	enum halmac_ret_status (*halmac_get_efuse_available_size)(struct halmac_adapter *adapter, u32 *halmac_size);
-	enum halmac_ret_status (*halmac_dump_efuse_map)(struct halmac_adapter *adapter, enum halmac_efuse_read_cfg cfg);
-	enum halmac_ret_status (*halmac_dump_efuse_map_bt)(struct halmac_adapter *adapter, enum halmac_efuse_bank halmac_efues_bank, u32 bt_efuse_map_size, u8 *pBT_efuse_map);
-	enum halmac_ret_status (*halmac_write_efuse_bt)(struct halmac_adapter *adapter, u32 halmac_offset, u8 halmac_value, enum halmac_efuse_bank halmac_efues_bank);
-	enum halmac_ret_status (*halmac_read_efuse_bt)(struct halmac_adapter *adapter, u32 halmac_offset, u8 *pValue, enum halmac_efuse_bank halmac_efues_bank);
-	enum halmac_ret_status (*halmac_cfg_efuse_auto_check)(struct halmac_adapter *adapter, u8 enable);
-	enum halmac_ret_status (*halmac_get_logical_efuse_size)(struct halmac_adapter *adapter, u32 *halmac_size);
-	enum halmac_ret_status (*halmac_dump_logical_efuse_map)(struct halmac_adapter *adapter, enum halmac_efuse_read_cfg cfg);
-	enum halmac_ret_status (*halmac_write_logical_efuse)(struct halmac_adapter *adapter, u32 halmac_offset, u8 halmac_value);
-	enum halmac_ret_status (*halmac_read_logical_efuse)(struct halmac_adapter *adapter, u32 halmac_offset, u8 *pValue);
-	enum halmac_ret_status (*halmac_pg_efuse_by_map)(struct halmac_adapter *adapter, struct halmac_pg_efuse_info *pPg_efuse_info, enum halmac_efuse_read_cfg cfg);
-	enum halmac_ret_status (*halmac_mask_logical_efuse)(struct halmac_adapter *adapter, struct halmac_pg_efuse_info *pEfuse_info);
-	enum halmac_ret_status (*halmac_get_c2h_info)(struct halmac_adapter *adapter, u8 *halmac_buf, u32 halmac_size);
-	enum halmac_ret_status (*halmac_h2c_lb)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_debug)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_cfg_parameter)(struct halmac_adapter *adapter, struct halmac_phy_parameter_info *para_info, u8 full_fifo);
-	enum halmac_ret_status (*halmac_update_packet)(struct halmac_adapter *adapter, enum halmac_packet_id pkt_id, u8 *pkt, u32 pkt_size);
-	enum halmac_ret_status (*halmac_bcn_ie_filter)(struct halmac_adapter *adapter, struct halmac_bcn_ie_info *pBcn_ie_info);
-	u8 (*halmac_reg_read_8)(struct halmac_adapter *adapter, u32 halmac_offset);
-	enum halmac_ret_status (*halmac_reg_write_8)(struct halmac_adapter *adapter, u32 halmac_offset, u8 halmac_data);
-	u16 (*halmac_reg_read_16)(struct halmac_adapter *adapter, u32 halmac_offset);
-	enum halmac_ret_status (*halmac_reg_write_16)(struct halmac_adapter *adapter, u32 halmac_offset, u16 halmac_data);
-	u32 (*halmac_reg_read_32)(struct halmac_adapter *adapter, u32 halmac_offset);
-	enum halmac_ret_status (*halmac_reg_write_32)(struct halmac_adapter *adapter, u32 halmac_offset, u32 halmac_data);
-	u32 (*halmac_reg_read_indirect_32)(struct halmac_adapter *adapter, u32 halmac_offset);
-	enum halmac_ret_status (*halmac_reg_sdio_cmd53_read_n)(struct halmac_adapter *adapter, u32 halmac_offset, u32 halmac_size, u8 *halmac_data);
-	enum halmac_ret_status (*halmac_tx_allowed_sdio)(struct halmac_adapter *adapter, u8 *pHalmac_buf, u32 halmac_size);
-	enum halmac_ret_status (*halmac_set_bulkout_num)(struct halmac_adapter *adapter, u8 bulkout_num);
-	enum halmac_ret_status (*halmac_get_sdio_tx_addr)(struct halmac_adapter *adapter, u8 *halmac_buf, u32 halmac_size, u32 *pcmd53_addr);
-	enum halmac_ret_status (*halmac_get_usb_bulkout_id)(struct halmac_adapter *adapter, u8 *halmac_buf, u32 halmac_size, u8 *bulkout_id);
-	enum halmac_ret_status (*halmac_fill_txdesc_checksum)(struct halmac_adapter *adapter, u8 *cur_desc);
-	enum halmac_ret_status (*halmac_update_datapack)(struct halmac_adapter *adapter, enum halmac_data_type halmac_data_type, struct halmac_phy_parameter_info *para_info);
-	enum halmac_ret_status (*halmac_run_datapack)(struct halmac_adapter *adapter, enum halmac_data_type halmac_data_type);
-	enum halmac_ret_status (*halmac_cfg_drv_info)(struct halmac_adapter *adapter, enum halmac_drv_info halmac_drv_info);
-	enum halmac_ret_status (*halmac_send_bt_coex)(struct halmac_adapter *adapter, u8 *pBt_buf, u32 bt_size, u8 ack);
-	enum halmac_ret_status (*halmac_verify_platform_api)(struct halmac_adapter *pHalmac_adapte);
-	u32 (*halmac_get_fifo_size)(struct halmac_adapter *adapter, enum hal_fifo_sel halmac_fifo_sel);
-	enum halmac_ret_status (*halmac_dump_fifo)(struct halmac_adapter *adapter, enum hal_fifo_sel halmac_fifo_sel, u32 halmac_start_addr, u32 halmac_fifo_dump_size, u8 *pFifo_map);
-	enum halmac_ret_status (*halmac_cfg_txbf)(struct halmac_adapter *adapter, u8 userid, enum halmac_bw bw, u8 txbf_en);
-	enum halmac_ret_status (*halmac_cfg_mumimo)(struct halmac_adapter *adapter, struct halmac_cfg_mumimo_para *pCfgmu);
-	enum halmac_ret_status (*halmac_cfg_sounding)(struct halmac_adapter *adapter, enum halmac_snd_role role, enum halmac_data_rate datarate);
-	enum halmac_ret_status (*halmac_del_sounding)(struct halmac_adapter *adapter, enum halmac_snd_role role);
-	enum halmac_ret_status (*halmac_su_bfer_entry_init)(struct halmac_adapter *adapter, struct halmac_su_bfer_init_para *pSu_bfer_init);
-	enum halmac_ret_status (*halmac_su_bfee_entry_init)(struct halmac_adapter *adapter, u8 userid, u16 paid);
-	enum halmac_ret_status (*halmac_mu_bfer_entry_init)(struct halmac_adapter *adapter, struct halmac_mu_bfer_init_para *pMu_bfer_init);
-	enum halmac_ret_status (*halmac_mu_bfee_entry_init)(struct halmac_adapter *adapter, struct halmac_mu_bfee_init_para *pMu_bfee_init);
-	enum halmac_ret_status (*halmac_su_bfer_entry_del)(struct halmac_adapter *adapter, u8 userid);
-	enum halmac_ret_status (*halmac_su_bfee_entry_del)(struct halmac_adapter *adapter, u8 userid);
-	enum halmac_ret_status (*halmac_mu_bfer_entry_del)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_mu_bfee_entry_del)(struct halmac_adapter *adapter, u8 userid);
-	enum halmac_ret_status (*halmac_add_ch_info)(struct halmac_adapter *adapter, struct halmac_ch_info *pCh_info);
-	enum halmac_ret_status (*halmac_add_extra_ch_info)(struct halmac_adapter *adapter, struct halmac_ch_extra_info *pCh_extra_info);
-	enum halmac_ret_status (*halmac_ctrl_ch_switch)(struct halmac_adapter *adapter, struct halmac_ch_switch_option *pCs_option);
-	enum halmac_ret_status (*halmac_p2pps)(struct halmac_adapter *adapter, struct halmac_p2pps *pP2PPS);
-	enum halmac_ret_status (*halmac_clear_ch_info)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_send_general_info)(struct halmac_adapter *adapter, struct halmac_general_info *pgGeneral_info);
-	enum halmac_ret_status (*halmac_start_iqk)(struct halmac_adapter *adapter, struct halmac_iqk_para *param);
-	enum halmac_ret_status (*halmac_ctrl_pwr_tracking)(struct halmac_adapter *adapter, struct halmac_pwr_tracking_option *opt);
-	enum halmac_ret_status (*halmac_psd)(struct halmac_adapter *adapter, u16 start_psd, u16 end_psd);
-	enum halmac_ret_status (*halmac_cfg_tx_agg_align)(struct halmac_adapter *adapter, u8 enable, u16 align_size);
-	enum halmac_ret_status (*halmac_query_status)(struct halmac_adapter *adapter, enum halmac_feature_id feature_id, enum halmac_cmd_process_status *pProcess_status, u8 *data, u32 *size);
-	enum halmac_ret_status (*halmac_reset_feature)(struct halmac_adapter *adapter, enum halmac_feature_id feature_id);
-	enum halmac_ret_status (*halmac_check_fw_status)(struct halmac_adapter *adapter, u8 *fw_status);
-	enum halmac_ret_status (*halmac_dump_fw_dmem)(struct halmac_adapter *adapter, u8 *dmem, u32 *size);
-	enum halmac_ret_status (*halmac_cfg_max_dl_size)(struct halmac_adapter *adapter, u32 size);
-	enum halmac_ret_status (*halmac_cfg_la_mode)(struct halmac_adapter *adapter, enum halmac_la_mode mode);
-	enum halmac_ret_status (*halmac_cfg_rx_fifo_expanding_mode)(struct halmac_adapter *adapter, enum halmac_rx_fifo_expanding_mode mode);
-	enum halmac_ret_status (*halmac_config_security)(struct halmac_adapter *adapter, struct halmac_security_setting *setting);
-	u8 (*halmac_get_used_cam_entry_num)(struct halmac_adapter *adapter, enum hal_security_type sec_type);
-	enum halmac_ret_status (*halmac_write_cam)(struct halmac_adapter *adapter, u32 idx, struct halmac_cam_entry_info *info);
-	enum halmac_ret_status (*halmac_read_cam_entry)(struct halmac_adapter *adapter, u32 idx, struct halmac_cam_entry_format *content);
-	enum halmac_ret_status (*halmac_clear_cam_entry)(struct halmac_adapter *adapter, u32 idx);
-	enum halmac_ret_status (*halmac_get_hw_value)(struct halmac_adapter *adapter, enum halmac_hw_id hw_id, void *pvalue);
-	enum halmac_ret_status (*halmac_set_hw_value)(struct halmac_adapter *adapter, enum halmac_hw_id hw_id, void *pvalue);
-	enum halmac_ret_status (*halmac_cfg_drv_rsvd_pg_num)(struct halmac_adapter *adapter, enum halmac_drv_rsvd_pg_num pg_num);
-	enum halmac_ret_status (*halmac_get_chip_version)(struct halmac_adapter *adapter, struct halmac_ver *version);
-	enum halmac_ret_status (*halmac_chk_txdesc)(struct halmac_adapter *adapter, u8 *pHalmac_buf, u32 halmac_size);
-	enum halmac_ret_status (*halmac_dl_drv_rsvd_page)(struct halmac_adapter *adapter, u8 pg_offset, u8 *pHal_buf, u32 size);
-	enum halmac_ret_status (*halmac_pcie_switch)(struct halmac_adapter *adapter, enum halmac_pcie_cfg pcie_cfg);
-	enum halmac_ret_status (*halmac_phy_cfg)(struct halmac_adapter *adapter, enum halmac_intf_phy_platform platform);
-	enum halmac_ret_status (*halmac_cfg_csi_rate)(struct halmac_adapter *adapter, u8 rssi, u8 current_rate, u8 fixrate_en, u8 *new_rate);
-	enum halmac_ret_status (*halmac_sdio_cmd53_4byte)(struct halmac_adapter *adapter, enum halmac_sdio_cmd53_4byte_mode cmd53_4byte_mode);
-	enum halmac_ret_status (*halmac_sdio_hw_info)(struct halmac_adapter *adapter, struct halmac_sdio_hw_info *pSdio_hw_info);
-	enum halmac_ret_status (*halmac_cfg_transmitter_addr)(struct halmac_adapter *adapter, u8 port, union halmac_wlan_addr *addr);
-	enum halmac_ret_status (*halmac_cfg_net_type)(struct halmac_adapter *adapter, u8 port, enum halmac_network_type_select net_type);
-	enum halmac_ret_status (*halmac_cfg_tsf_rst)(struct halmac_adapter *adapter, u8 port);
-	enum halmac_ret_status (*halmac_cfg_bcn_space)(struct halmac_adapter *adapter, u8 port, u32 bcn_space);
-	enum halmac_ret_status (*halmac_rw_bcn_ctrl)(struct halmac_adapter *adapter, u8 port, u8 write_en, struct halmac_bcn_ctrl *ctrl);
-	enum halmac_ret_status (*halmac_interface_integration_tuning)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_txfifo_is_empty)(struct halmac_adapter *adapter, u32 chk_num);
-	enum halmac_ret_status (*halmac_download_flash)(struct halmac_adapter *adapter, u8 *pHalmac_fw, u32 halmac_fw_size, u32 rom_address);
-	enum halmac_ret_status (*halmac_read_flash)(struct halmac_adapter *adapter, u32 addr);
-	enum halmac_ret_status (*halmac_erase_flash)(struct halmac_adapter *adapter, u8 erase_cmd, u32 addr);
-	enum halmac_ret_status (*halmac_check_flash)(struct halmac_adapter *adapter, u8 *pHalmac_fw, u32 halmac_fw_size, u32 addr);
-	enum halmac_ret_status (*halmac_cfg_edca_para)(struct halmac_adapter *adapter, enum halmac_acq_id acq_id, struct halmac_edca_para *param);
-	enum halmac_ret_status (*halmac_pinmux_get_func)(struct halmac_adapter *adapter, enum halmac_gpio_func gpio_func, u8 *pEnable);
-	enum halmac_ret_status (*halmac_pinmux_set_func)(struct halmac_adapter *adapter, enum halmac_gpio_func gpio_func);
-	enum halmac_ret_status (*halmac_pinmux_free_func)(struct halmac_adapter *adapter, enum halmac_gpio_func gpio_func);
-	enum halmac_ret_status (*halmac_pinmux_wl_led_mode)(struct halmac_adapter *adapter, enum halmac_wlled_mode wlled_mode);
-	void (*halmac_pinmux_wl_led_sw_ctrl)(struct halmac_adapter *adapter, u8 led_on);
-	void (*halmac_pinmux_sdio_int_polarity)(struct halmac_adapter *adapter, u8 low_active);
-	enum halmac_ret_status (*halmac_pinmux_gpio_mode)(struct halmac_adapter *adapter, u8 gpio_id, u8 output);
-	enum halmac_ret_status (*halmac_pinmux_gpio_output)(struct halmac_adapter *adapter, u8 gpio_id, u8 high);
-	enum halmac_ret_status (*halmac_pinmux_pin_status)(struct halmac_adapter *adapter, u8 gpio_id, u8 *pHigh);
-	enum halmac_ret_status (*halmac_ofld_func_cfg)(struct halmac_adapter *adapter, struct halmac_ofld_func_info *pOfld_func_info);
-	enum halmac_ret_status (*halmac_rx_cut_amsdu_cfg)(struct halmac_adapter *adapter, struct halmac_cut_amsdu_cfg *cfg);
-	enum halmac_ret_status (*halmac_fw_snding)(struct halmac_adapter *adapter, struct halmac_su_snding_info *pSu_snding, struct halmac_mu_snding_info *pMu_snding, u8 period);
-	enum halmac_ret_status (*halmac_get_mac_addr)(struct halmac_adapter *adapter, u8 port, union halmac_wlan_addr *addr);
-	enum halmac_ret_status (*halmac_init_low_pwr)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_enter_cpu_sleep_mode)(struct halmac_adapter *adapter);
-	enum halmac_ret_status (*halmac_get_cpu_mode)(struct halmac_adapter *adapter, enum halmac_wlcpu_mode *mode);
+	enum halmac_ret_status
+	(*halmac_register_api)(struct halmac_adapter *adapter,
+			       struct halmac_api_registry *registry);
+	enum halmac_ret_status
+	(*halmac_mac_power_switch)(struct halmac_adapter *adapter,
+				   enum halmac_mac_power pwr);
+	enum halmac_ret_status
+	(*halmac_download_firmware)(struct halmac_adapter *adapter, u8 *fw_bin,
+				    u32 size);
+	enum halmac_ret_status
+	(*halmac_free_download_firmware)(struct halmac_adapter *adapter,
+					 enum halmac_dlfw_mem mem_sel,
+					 u8 *fw_bin, u32 size);
+	enum halmac_ret_status
+	(*halmac_reset_wifi_fw)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_get_fw_version)(struct halmac_adapter *adapter,
+				 struct halmac_fw_version *ver);
+	enum halmac_ret_status
+	(*halmac_cfg_mac_addr)(struct halmac_adapter *adapter,
+			       u8 port, union halmac_wlan_addr *addr);
+	enum halmac_ret_status
+	(*halmac_cfg_bssid)(struct halmac_adapter *adapter, u8 port,
+			    union halmac_wlan_addr *addr);
+	enum halmac_ret_status
+	(*halmac_cfg_multicast_addr)(struct halmac_adapter *adapter,
+				     union halmac_wlan_addr *addr);
+	enum halmac_ret_status
+	(*halmac_pre_init_system_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_init_system_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_init_trx_cfg)(struct halmac_adapter *adapter,
+			       enum halmac_trx_mode mode);
+	enum halmac_ret_status
+	(*halmac_init_h2c)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_cfg_rx_aggregation)(struct halmac_adapter *adapter,
+				     struct halmac_rxagg_cfg *cfg);
+	enum halmac_ret_status
+	(*halmac_init_protocol_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_init_edca_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_cfg_operation_mode)(struct halmac_adapter *adapter,
+				     enum halmac_wireless_mode mode);
+	enum halmac_ret_status
+	(*halmac_cfg_ch_bw)(struct halmac_adapter *adapter, u8 ch,
+			    enum halmac_pri_ch_idx idx, enum halmac_bw bw);
+	enum halmac_ret_status
+	(*halmac_cfg_bw)(struct halmac_adapter *adapter, enum halmac_bw bw);
+	enum halmac_ret_status
+	(*halmac_init_wmac_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_init_mac_cfg)(struct halmac_adapter *adapter,
+			       enum halmac_trx_mode mode);
+	enum halmac_ret_status
+	(*halmac_init_interface_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_deinit_interface_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_init_sdio_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_init_usb_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_init_pcie_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_deinit_sdio_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_deinit_usb_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_deinit_pcie_cfg)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_get_efuse_size)(struct halmac_adapter *adapter, u32 *size);
+	enum halmac_ret_status
+	(*halmac_get_efuse_available_size)(struct halmac_adapter *adapter,
+					   u32 *size);
+	enum halmac_ret_status
+	(*halmac_dump_efuse_map)(struct halmac_adapter *adapter,
+				 enum halmac_efuse_read_cfg cfg);
+	enum halmac_ret_status
+	(*halmac_dump_efuse_map_bt)(struct halmac_adapter *adapter,
+				    enum halmac_efuse_bank bank, u32 size,
+				    u8 *map);
+	enum halmac_ret_status
+	(*halmac_write_efuse_bt)(struct halmac_adapter *adapter, u32 offset,
+				 u8 value, enum halmac_efuse_bank bank);
+	enum halmac_ret_status
+	(*halmac_read_efuse_bt)(struct halmac_adapter *adapter, u32 offset,
+				u8 *value, enum halmac_efuse_bank bank);
+	enum halmac_ret_status
+	(*halmac_cfg_efuse_auto_check)(struct halmac_adapter *adapter,
+				       u8 enable);
+	enum halmac_ret_status
+	(*halmac_get_logical_efuse_size)(struct halmac_adapter *adapter,
+					 u32 *size);
+	enum halmac_ret_status
+	(*halmac_dump_logical_efuse_map)(struct halmac_adapter *adapter,
+					 enum halmac_efuse_read_cfg cfg);
+	enum halmac_ret_status
+	(*halmac_dump_logical_efuse_mask)(struct halmac_adapter *adapter,
+					  enum halmac_efuse_read_cfg cfg);
+	enum halmac_ret_status
+	(*halmac_write_logical_efuse)(struct halmac_adapter *adapter,
+				      u32 offset, u8 value);
+	enum halmac_ret_status
+	(*halmac_read_logical_efuse)(struct halmac_adapter *adapter, u32 offset,
+				     u8 *value);
+	enum halmac_ret_status
+	(*halmac_pg_efuse_by_map)(struct halmac_adapter *adapter,
+				  struct halmac_pg_efuse_info *info,
+				  enum halmac_efuse_read_cfg cfg);
+	enum halmac_ret_status
+	(*halmac_mask_logical_efuse)(struct halmac_adapter *adapter,
+				     struct halmac_pg_efuse_info *info);
+	enum halmac_ret_status
+	(*halmac_get_c2h_info)(struct halmac_adapter *adapter, u8 *buf,
+			       u32 size);
+	enum halmac_ret_status
+	(*halmac_h2c_lb)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_debug)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_cfg_parameter)(struct halmac_adapter *adapter,
+				struct halmac_phy_parameter_info *info,
+				u8 full_fifo);
+	enum halmac_ret_status
+	(*halmac_update_packet)(struct halmac_adapter *adapter,
+				enum halmac_packet_id pkt_id, u8 *pkt,
+				u32 size);
+	enum halmac_ret_status
+	(*halmac_bcn_ie_filter)(struct halmac_adapter *adapter,
+				struct halmac_bcn_ie_info *info);
+	u8
+	(*halmac_reg_read_8)(struct halmac_adapter *adapter, u32 offset);
+	enum halmac_ret_status
+	(*halmac_reg_write_8)(struct halmac_adapter *adapter, u32 offset,
+			      u8 value);
+	u16
+	(*halmac_reg_read_16)(struct halmac_adapter *adapter, u32 offset);
+	enum halmac_ret_status
+	(*halmac_reg_write_16)(struct halmac_adapter *adapter, u32 offset,
+			       u16 value);
+	u32
+	(*halmac_reg_read_32)(struct halmac_adapter *adapter, u32 offset);
+	enum halmac_ret_status
+	(*halmac_reg_write_32)(struct halmac_adapter *adapter, u32 offset,
+			       u32 value);
+	u32
+	(*halmac_reg_read_indirect_32)(struct halmac_adapter *adapter,
+				       u32 offset);
+	enum halmac_ret_status
+	(*halmac_reg_sdio_cmd53_read_n)(struct halmac_adapter *adapter,
+					u32 offset, u32 size, u8 *value);
+	enum halmac_ret_status
+	(*halmac_tx_allowed_sdio)(struct halmac_adapter *adapter, u8 *buf,
+				  u32 size);
+	enum halmac_ret_status
+	(*halmac_set_bulkout_num)(struct halmac_adapter *adapter, u8 num);
+	enum halmac_ret_status
+	(*halmac_get_sdio_tx_addr)(struct halmac_adapter *adapter, u8 *buf,
+				   u32 size, u32 *cmd53_addr);
+	enum halmac_ret_status
+	(*halmac_get_usb_bulkout_id)(struct halmac_adapter *adapter, u8 *buf,
+				     u32 size, u8 *id);
+	enum halmac_ret_status
+	(*halmac_fill_txdesc_checksum)(struct halmac_adapter *adapter,
+				       u8 *txdesc);
+	enum halmac_ret_status
+	(*halmac_update_datapack)(struct halmac_adapter *adapter,
+				  enum halmac_data_type data_type,
+				  struct halmac_phy_parameter_info *info);
+	enum halmac_ret_status
+	(*halmac_run_datapack)(struct halmac_adapter *adapter,
+			       enum halmac_data_type data_type);
+	enum halmac_ret_status
+	(*halmac_cfg_drv_info)(struct halmac_adapter *adapter,
+			       enum halmac_drv_info drv_info);
+	enum halmac_ret_status
+	(*halmac_send_bt_coex)(struct halmac_adapter *adapter, u8 *buf,
+			       u32 size, u8 ack);
+	enum halmac_ret_status
+	(*halmac_verify_platform_api)(struct halmac_adapter *adapter);
+	u32
+	(*halmac_get_fifo_size)(struct halmac_adapter *adapter,
+				enum hal_fifo_sel sel);
+	enum halmac_ret_status
+	(*halmac_dump_fifo)(struct halmac_adapter *adapter,
+			    enum hal_fifo_sel sel, u32 start_addr, u32 size,
+			    u8 *data);
+	enum halmac_ret_status
+	(*halmac_cfg_txbf)(struct halmac_adapter *adapter, u8 userid,
+			   enum halmac_bw bw, u8 txbf_en);
+	enum halmac_ret_status
+	(*halmac_cfg_mumimo)(struct halmac_adapter *adapter,
+			     struct halmac_cfg_mumimo_para *param);
+	enum halmac_ret_status
+	(*halmac_cfg_sounding)(struct halmac_adapter *adapter,
+			       enum halmac_snd_role role,
+			       enum halmac_data_rate rate);
+	enum halmac_ret_status
+	(*halmac_del_sounding)(struct halmac_adapter *adapter,
+			       enum halmac_snd_role role);
+	enum halmac_ret_status
+	(*halmac_su_bfer_entry_init)(struct halmac_adapter *adapter,
+				     struct halmac_su_bfer_init_para *param);
+	enum halmac_ret_status
+	(*halmac_su_bfee_entry_init)(struct halmac_adapter *adapter, u8 userid,
+				     u16 paid);
+	enum halmac_ret_status
+	(*halmac_mu_bfer_entry_init)(struct halmac_adapter *adapter,
+				     struct halmac_mu_bfer_init_para *param);
+	enum halmac_ret_status
+	(*halmac_mu_bfee_entry_init)(struct halmac_adapter *adapter,
+				     struct halmac_mu_bfee_init_para *param);
+	enum halmac_ret_status
+	(*halmac_su_bfer_entry_del)(struct halmac_adapter *adapter, u8 userid);
+	enum halmac_ret_status
+	(*halmac_su_bfee_entry_del)(struct halmac_adapter *adapter, u8 userid);
+	enum halmac_ret_status
+	(*halmac_mu_bfer_entry_del)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_mu_bfee_entry_del)(struct halmac_adapter *adapter, u8 userid);
+	enum halmac_ret_status
+	(*halmac_add_ch_info)(struct halmac_adapter *adapter,
+			      struct halmac_ch_info *info);
+	enum halmac_ret_status
+	(*halmac_add_extra_ch_info)(struct halmac_adapter *adapter,
+				    struct halmac_ch_extra_info *info);
+	enum halmac_ret_status
+	(*halmac_ctrl_ch_switch)(struct halmac_adapter *adapter,
+				 struct halmac_ch_switch_option *opt);
+	enum halmac_ret_status
+	(*halmac_send_scan_packet)(struct halmac_adapter *adapter, u8 index,
+				   u8 *pkt, u32 size);
+	enum halmac_ret_status
+	(*halmac_drop_scan_packet)(struct halmac_adapter *adapter,
+				   struct halmac_drop_pkt_option *opt);
+	enum halmac_ret_status
+	(*halmac_p2pps)(struct halmac_adapter *adapter,
+			struct halmac_p2pps *info);
+	enum halmac_ret_status
+	(*halmac_clear_ch_info)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_send_general_info)(struct halmac_adapter *adapter,
+				    struct halmac_general_info *info);
+	enum halmac_ret_status
+	(*halmac_start_iqk)(struct halmac_adapter *adapter,
+			    struct halmac_iqk_para *param);
+	enum halmac_ret_status
+	(*halmac_ctrl_pwr_tracking)(struct halmac_adapter *adapter,
+				    struct halmac_pwr_tracking_option *opt);
+	enum halmac_ret_status
+	(*halmac_psd)(struct halmac_adapter *adapter, u16 start_psd,
+		      u16 end_psd);
+	enum halmac_ret_status
+	(*halmac_cfg_tx_agg_align)(struct halmac_adapter *adapter, u8 enable,
+				   u16 align_size);
+	enum halmac_ret_status
+	(*halmac_query_status)(struct halmac_adapter *adapter,
+			       enum halmac_feature_id feature_id,
+			       enum halmac_cmd_process_status *proc_status,
+			       u8 *data, u32 *size);
+	enum halmac_ret_status
+	(*halmac_reset_feature)(struct halmac_adapter *adapter,
+				enum halmac_feature_id feature_id);
+	enum halmac_ret_status
+	(*halmac_check_fw_status)(struct halmac_adapter *adapter,
+				  u8 *fw_status);
+	enum halmac_ret_status
+	(*halmac_dump_fw_dmem)(struct halmac_adapter *adapter, u8 *dmem,
+			       u32 *size);
+	enum halmac_ret_status
+	(*halmac_cfg_max_dl_size)(struct halmac_adapter *adapter, u32 size);
+	enum halmac_ret_status
+	(*halmac_cfg_la_mode)(struct halmac_adapter *adapter,
+			      enum halmac_la_mode mode);
+	enum halmac_ret_status
+	(*halmac_cfg_rxff_expand_mode)(struct halmac_adapter *adapter,
+				       enum halmac_rx_fifo_expanding_mode mode);
+	enum halmac_ret_status
+	(*halmac_config_security)(struct halmac_adapter *adapter,
+				  struct halmac_security_setting *setting);
+	u8
+	(*halmac_get_used_cam_entry_num)(struct halmac_adapter *adapter,
+					 enum hal_security_type sec_type);
+	enum halmac_ret_status
+	(*halmac_write_cam)(struct halmac_adapter *adapter, u32 idx,
+			    struct halmac_cam_entry_info *info);
+	enum halmac_ret_status
+	(*halmac_read_cam_entry)(struct halmac_adapter *adapter, u32 idx,
+				 struct halmac_cam_entry_format *content);
+	enum halmac_ret_status
+	(*halmac_clear_cam_entry)(struct halmac_adapter *adapter, u32 idx);
+	enum halmac_ret_status
+	(*halmac_get_hw_value)(struct halmac_adapter *adapter,
+			       enum halmac_hw_id hw_id, void *value);
+	enum halmac_ret_status
+	(*halmac_set_hw_value)(struct halmac_adapter *adapter,
+			       enum halmac_hw_id hw_id, void *value);
+	enum halmac_ret_status
+	(*halmac_cfg_drv_rsvd_pg_num)(struct halmac_adapter *adapter,
+				      enum halmac_drv_rsvd_pg_num pg_num);
+	enum halmac_ret_status
+	(*halmac_get_chip_version)(struct halmac_adapter *adapter,
+				   struct halmac_ver *ver);
+	enum halmac_ret_status
+	(*halmac_chk_txdesc)(struct halmac_adapter *adapter, u8 *buf, u32 size);
+	enum halmac_ret_status
+	(*halmac_dl_drv_rsvd_page)(struct halmac_adapter *adapter, u8 pg_offset,
+				   u8 *buf, u32 size);
+	enum halmac_ret_status
+	(*halmac_pcie_switch)(struct halmac_adapter *adapter,
+			      enum halmac_pcie_cfg cfg);
+	enum halmac_ret_status
+	(*halmac_phy_cfg)(struct halmac_adapter *adapter,
+			  enum halmac_intf_phy_platform pltfm);
+	enum halmac_ret_status
+	(*halmac_cfg_csi_rate)(struct halmac_adapter *adapter, u8 rssi,
+			       u8 cur_rate, u8 fixrate_en, u8 *new_rate,
+			       u8 *bmp_ofdm54);
+#if HALMAC_SDIO_SUPPORT
+	enum halmac_ret_status
+	(*halmac_sdio_cmd53_4byte)(struct halmac_adapter *adapter,
+				   enum halmac_sdio_cmd53_4byte_mode mode);
+	enum halmac_ret_status
+	(*halmac_sdio_hw_info)(struct halmac_adapter *adapter,
+			       struct halmac_sdio_hw_info *info);
+#endif
+	enum halmac_ret_status
+	(*halmac_cfg_transmitter_addr)(struct halmac_adapter *adapter, u8 port,
+				       union halmac_wlan_addr *addr);
+	enum halmac_ret_status
+	(*halmac_cfg_net_type)(struct halmac_adapter *adapter, u8 port,
+			       enum halmac_network_type_select net_type);
+	enum halmac_ret_status
+	(*halmac_cfg_tsf_rst)(struct halmac_adapter *adapter, u8 port);
+	enum halmac_ret_status
+	(*halmac_cfg_bcn_space)(struct halmac_adapter *adapter, u8 port,
+				u32 bcn_space);
+	enum halmac_ret_status
+	(*halmac_rw_bcn_ctrl)(struct halmac_adapter *adapter, u8 port,
+			      u8 write_en, struct halmac_bcn_ctrl *ctrl);
+	enum halmac_ret_status
+	(*halmac_interface_integration_tuning)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_txfifo_is_empty)(struct halmac_adapter *adapter, u32 chk_num);
+	enum halmac_ret_status
+	(*halmac_download_flash)(struct halmac_adapter *adapter, u8 *fw_bin,
+				 u32 size, u32 rom_addr);
+	enum halmac_ret_status
+	(*halmac_read_flash)(struct halmac_adapter *adapter, u32 addr,
+			     u32 length, u8 *data);
+	enum halmac_ret_status
+	(*halmac_erase_flash)(struct halmac_adapter *adapter, u8 erase_cmd,
+			      u32 addr);
+	enum halmac_ret_status
+	(*halmac_check_flash)(struct halmac_adapter *adapter, u8 *fw_bin,
+			      u32 size, u32 addr);
+	enum halmac_ret_status
+	(*halmac_cfg_edca_para)(struct halmac_adapter *adapter,
+				enum halmac_acq_id acq_id,
+				struct halmac_edca_para *param);
+	enum halmac_ret_status
+	(*halmac_pinmux_get_func)(struct halmac_adapter *adapter,
+				  enum halmac_gpio_func gpio_func, u8 *enable);
+	enum halmac_ret_status
+	(*halmac_pinmux_set_func)(struct halmac_adapter *adapter,
+				  enum halmac_gpio_func gpio_func);
+	enum halmac_ret_status
+	(*halmac_pinmux_free_func)(struct halmac_adapter *adapter,
+				   enum halmac_gpio_func gpio_func);
+	enum halmac_ret_status
+	(*halmac_pinmux_wl_led_mode)(struct halmac_adapter *adapter,
+				     enum halmac_wlled_mode mode);
+	void
+	(*halmac_pinmux_wl_led_sw_ctrl)(struct halmac_adapter *adapter, u8 on);
+	void
+	(*halmac_pinmux_sdio_int_polarity)(struct halmac_adapter *adapter,
+					   u8 low_active);
+	enum halmac_ret_status
+	(*halmac_pinmux_gpio_mode)(struct halmac_adapter *adapter, u8 gpio_id,
+				   u8 output);
+	enum halmac_ret_status
+	(*halmac_pinmux_gpio_output)(struct halmac_adapter *adapter, u8 gpio_id,
+				     u8 high);
+	enum halmac_ret_status
+	(*halmac_pinmux_pin_status)(struct halmac_adapter *adapter, u8 pin_id,
+				    u8 *high);
+	enum halmac_ret_status
+	(*halmac_ofld_func_cfg)(struct halmac_adapter *adapter,
+				struct halmac_ofld_func_info *info);
+	enum halmac_ret_status
+	(*halmac_rx_cut_amsdu_cfg)(struct halmac_adapter *adapter,
+				   struct halmac_cut_amsdu_cfg *cfg);
+	enum halmac_ret_status
+	(*halmac_fw_snding)(struct halmac_adapter *adapter,
+			    struct halmac_su_snding_info *su_info,
+			    struct halmac_mu_snding_info *mu_info, u8 period);
+	enum halmac_ret_status
+	(*halmac_get_mac_addr)(struct halmac_adapter *adapter, u8 port,
+			       union halmac_wlan_addr *addr);
+	enum halmac_ret_status
+	(*halmac_init_low_pwr)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_enter_cpu_sleep_mode)(struct halmac_adapter *adapter);
+	enum halmac_ret_status
+	(*halmac_get_cpu_mode)(struct halmac_adapter *adapter,
+			       enum halmac_wlcpu_mode *mode);
+	enum halmac_ret_status
+	(*halmac_drv_fwctrl)(struct halmac_adapter *adapter, u8 *payload,
+			     u32 size, u8 ack);
+	enum halmac_ret_status
+	(*halmac_read_efuse)(struct halmac_adapter *adapter, u32 offset,
+			     u8 *value);
+	enum halmac_ret_status
+	(*halmac_write_efuse)(struct halmac_adapter *adapter, u32 offset,
+			      u8 value);
+	enum halmac_ret_status
+	(*halmac_write_wifi_phy_efuse)(struct halmac_adapter *adapter,
+				       u32 offset, u8 value);
+	enum halmac_ret_status
+	(*halmac_read_wifi_phy_efuse)(struct halmac_adapter *adapter,
+				      u32 offset, u32 size, u8 *value);
+#if HALMAC_PCIE_SUPPORT
+	enum halmac_ret_status
+	(*halmac_cfgspc_set_pcie)(struct halmac_adapter *adapter,
+				  struct halmac_pcie_cfgspc_param *param);
+#endif
+	enum halmac_ret_status
+	(*halmac_en_ref_autok_pcie)(struct halmac_adapter *adapter, u8 en);
+	enum halmac_ret_status
+	(*halmac_get_watcher)(struct halmac_adapter *adapter,
+			      enum halmac_watcher_sel sel, void *vlue);
+	enum halmac_ret_status
+	(*halmac_cfg_rf_pinmux)(struct halmac_adapter *adapter,
+				u8 value);
+#if HALMAC_DBG_MONITOR_IO
+	u8
+	(*halmac_mon_reg_read_8)(struct halmac_adapter *adapter, u32 offset,
+				 const char *func, const u32 line);
+	u16
+	(*halmac_mon_reg_read_16)(struct halmac_adapter *adapter, u32 offset,
+				  const char *func, const u32 line);
+	u32
+	(*halmac_mon_reg_read_32)(struct halmac_adapter *adapter, u32 offset,
+				  const char *func, const u32 line);
+	enum halmac_ret_status
+	(*halmac_mon_reg_sdio_cmd53_read_n)(struct halmac_adapter *adapter,
+					    u32 offset, u32 size, u8 *value,
+					    const char *func, const u32 line);
+	enum halmac_ret_status
+	(*halmac_mon_reg_write_8)(struct halmac_adapter *adapter, u32 offset,
+				  u8 value, const char *func, const u32 line);
+	enum halmac_ret_status
+	(*halmac_mon_reg_write_16)(struct halmac_adapter *adapter, u32 offset,
+				   u16 value, const char *func, const u32 line);
+	enum halmac_ret_status
+	(*halmac_mon_reg_write_32)(struct halmac_adapter *adapter, u32 offset,
+				   u32 value, const char *func, const u32 line);
+#endif
 #if HALMAC_PLATFORM_TESTPROGRAM
-	struct halmisc_api *pHalmisc_api;
+	struct halmisc_api *halmisc_api;
 #endif
 };
 
-#define HALMAC_GET_API(phalmac_adapter) ((struct halmac_api *)phalmac_adapter->pHalmac_api)
+#define HALMAC_GET_API(halmac_adapter)                                         \
+	((struct halmac_api *)halmac_adapter->halmac_api)
 
 static HALMAC_INLINE enum halmac_ret_status
-halmac_api_validate(
-	struct halmac_adapter *adapter
-)
+halmac_fw_validate(struct halmac_adapter *adapter)
 {
-	if (adapter->halmac_state.api_state != HALMAC_API_STATE_INIT)
-		return HALMAC_RET_API_INVALID;
-
-	return HALMAC_RET_SUCCESS;
-}
-
-static HALMAC_INLINE enum halmac_ret_status
-halmac_fw_validate(
-	struct halmac_adapter *adapter
-)
-{
-	if (adapter->halmac_state.dlfw_state != HALMAC_DLFW_DONE && adapter->halmac_state.dlfw_state != HALMAC_GEN_INFO_SENT)
+	if (adapter->halmac_state.dlfw_state != HALMAC_DLFW_DONE &&
+	    adapter->halmac_state.dlfw_state != HALMAC_GEN_INFO_SENT)
 		return HALMAC_RET_NO_DLFW;
 
 	return HALMAC_RET_SUCCESS;

@@ -47,6 +47,13 @@
 #define BATTERY_DOWN_MAX_CHANGE_RUN_AC_ONLINE 3600
 
 #define NO_STANDARD_AC_BIG_CHARGE_MODE 1
+
+/* rev rds board can't distinguish between poe(ac) charging and type-c pd charging,so report charge mode follow */
+/* report usb charging mode when the DC_DET is low and vbus_det is high,whichever cable insert*/
+/* report ac charging mode when the DC_DET is low and just only have poe insert*/
+#define REV_RDS_BOARD
+/********************************************************************************************/
+
 /* #define SYSTEM_SHUTDOWN_VOLTAGE  3400000 */
 #define BAT_LOW_INTERRUPT    1
 

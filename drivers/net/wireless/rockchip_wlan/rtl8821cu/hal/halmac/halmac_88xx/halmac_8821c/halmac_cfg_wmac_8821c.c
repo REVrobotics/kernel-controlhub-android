@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2017 Realtek Corporation. All rights reserved.
+ * Copyright(c) 2017 - 2019 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -19,20 +19,16 @@
 #if HALMAC_8821C_SUPPORT
 
 /**
- * halmac_cfg_drv_info_88xx() - config driver info
+ * cfg_drv_info_8821c() - config driver info
  * @adapter : the adapter of halmac
  * @drv_info : driver information selection
  * Author : KaiYuan Chang/Ivan Lin
  * Return : enum halmac_ret_status
  * More details of status code can be found in prototype document
- * Need to build halmac_cfg_drv_info_8821C, halmac_cfg_drv_info_8822B, halmac_cfg_drv_info_88OO
- * Because 88OO has no need to patch Rx packet counter. Soar 20161110
  */
 enum halmac_ret_status
-halmac_cfg_drv_info_8821c(
-	IN struct halmac_adapter *adapter,
-	IN enum halmac_drv_info drv_info
-)
+cfg_drv_info_8821c(struct halmac_adapter *adapter,
+		   enum halmac_drv_info drv_info)
 {
 	u8 drv_info_size = 0;
 	u8 phy_status_en = 0;
@@ -40,13 +36,10 @@ halmac_cfg_drv_info_8821c(
 	u8 plcp_hdr_en = 0;
 	u8 value8;
 	u32 value32;
-	struct halmac_api *api = (struct halmac_api *)adapter->pHalmac_api;
-	enum halmac_ret_status status = HALMAC_RET_SUCCESS;
+	struct halmac_api *api = (struct halmac_api *)adapter->halmac_api;
 
-	if (halmac_api_validate(adapter) != HALMAC_RET_SUCCESS)
-		return HALMAC_RET_API_INVALID;
-
-	PLTFM_MSG_PRINT(HALMAC_DBG_TRACE, "[TRACE]%s ===>\n", __func__);
+	PLTFM_MSG_TRACE("[TRACE]%s ===>\n", __func__);
+	PLTFM_MSG_TRACE("[TRACE]drv info = %d\n", drv_info);
 
 	switch (drv_info) {
 	case HALMAC_DRV_INFO_NONE:
@@ -77,14 +70,15 @@ halmac_cfg_drv_info_8821c(
 		return HALMAC_RET_SW_CASE_NOT_SUPPORT;
 	}
 
-	if (adapter->txff_allocation.rx_fifo_expanding_mode != HALMAC_RX_FIFO_EXPANDING_MODE_DISABLE)
-		drv_info_size = HALMAC_RX_DESC_DUMMY_SIZE_MAX_8821C >> 3;
+	if (adapter->txff_alloc.rx_fifo_exp_mode !=
+	    HALMAC_RX_FIFO_EXPANDING_MODE_DISABLE)
+		drv_info_size = RX_DESC_DUMMY_SIZE_8821C >> 3;
 
 	HALMAC_REG_W8(REG_RX_DRVINFO_SZ, drv_info_size);
 
 	value8 = HALMAC_REG_R8(REG_TRXFF_BNDY + 1);
 	value8 &= 0xF0;
-	/* For rxdesc len = 0 issue. set to correct value after finding root cause */
+	/* For rxdesc len = 0 issue */
 	value8 |= 0xF;
 	HALMAC_REG_W8(REG_TRXFF_BNDY + 1, value8);
 
@@ -104,48 +98,48 @@ halmac_cfg_drv_info_8821c(
 		value32 = value32 | BIT(8);
 	HALMAC_REG_W32(REG_WMAC_OPTION_FUNCTION + 4, value32);
 
-	PLTFM_MSG_PRINT(HALMAC_DBG_TRACE, "[TRACE]%s <===\n", __func__);
+	PLTFM_MSG_TRACE("[TRACE]%s <===\n", __func__);
 
 	return HALMAC_RET_SUCCESS;
 }
 
 /**
- * halmac_init_low_pwr_8821c() - config WMAC register
+ * init_low_pwr_8821c() - config WMAC register
  * @adapter
  * Author : KaiYuan Chang/Ivan Lin
  * Return : enum halmac_ret_status
  * More details of status code can be found in prototype document
  */
 enum halmac_ret_status
-halmac_init_low_pwr_8821c(
-	IN struct halmac_adapter *adapter
-)
+init_low_pwr_8821c(struct halmac_adapter *adapter)
 {
 	return HALMAC_RET_SUCCESS;
 }
 
 void
-halmac_cfg_mac_rx_ignore_8821c(
-	IN struct halmac_adapter *adapter,
-	IN struct halmac_mac_rx_ignore_cfg *cfg
-)
+cfg_rx_ignore_8821c(struct halmac_adapter *adapter,
+		    struct halmac_mac_rx_ignore_cfg *cfg)
 {
-	u8 value8;
-	struct halmac_api *api = (struct halmac_api *)adapter->pHalmac_api;
+}
 
-	PLTFM_MSG_PRINT(HALMAC_DBG_TRACE, "[TRACE]%s ===>\n", __func__);
+enum halmac_ret_status
+cfg_ampdu_8821c(struct halmac_adapter *adapter,
+		struct halmac_ampdu_config *cfg)
+{
+	struct halmac_api *api = (struct halmac_api *)adapter->halmac_api;
 
-	value8 = HALMAC_REG_R8(REG_BBPSF_CTRL);
+	if (cfg->ht_max_len != cfg->vht_max_len) {
+		PLTFM_MSG_ERR("[ERR]max len ht != vht!!\n");
+		return HALMAC_RET_PARA_NOT_SUPPORT;
+	}
 
-	/*mac header check enable*/
-	if (cfg->hdr_chk_en == _TRUE)
-		value8 |= BIT_BBPSF_MHCHKEN | BIT_BBPSF_MPDUCHKEN;
-	else
-		value8 &= ~(BIT_BBPSF_MHCHKEN) & (~(BIT_BBPSF_MPDUCHKEN));
+	HALMAC_REG_W8(REG_PROT_MODE_CTRL + 2, cfg->max_agg_num);
+	HALMAC_REG_W8(REG_PROT_MODE_CTRL + 3, cfg->max_agg_num);
 
-	HALMAC_REG_W8(REG_BBPSF_CTRL, value8);
+	if (cfg->max_len_en == 1)
+		HALMAC_REG_W32(REG_AMPDU_MAX_LENGTH, cfg->ht_max_len);
 
-	PLTFM_MSG_PRINT(HALMAC_DBG_TRACE, "[TRACE]%s <===\n", __func__);
+	return HALMAC_RET_SUCCESS;
 }
 
 #endif /* HALMAC_8821C_SUPPORT */
