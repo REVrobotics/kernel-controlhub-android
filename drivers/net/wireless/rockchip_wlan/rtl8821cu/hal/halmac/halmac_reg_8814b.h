@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
+ * Copyright(c) 2016 - 2019 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -628,7 +628,6 @@
 #define REG_DUMMY_PAGE4_V1_8814B 0x04FC
 #define REG_DUMMY_PAGE4_1_8814B 0x04FE
 #define REG_MU_OFFSET_8814B 0x1400
-#define REG_USEREG_SETTING_8814B 0x1420
 #define REG_BF0_TIME_SETTING_8814B 0x1428
 #define REG_BF1_TIME_SETTING_8814B 0x142C
 #define REG_BF_TIMEOUT_EN_8814B 0x1430
@@ -796,6 +795,7 @@
 #define REG_TIMER_COMPARE_8814B 0x15C0
 #define REG_TIMER_COMPARE_VALUE_LOW_8814B 0x15C4
 #define REG_TIMER_COMPARE_VALUE_HIGH_8814B 0x15C8
+#define REG_SCHEDULER_COUNTER_8814B 0x15D0
 #define REG_WMAC_CR_8814B 0x0600
 #define REG_WMAC_FWPKT_CR_8814B 0x0601
 #define REG_FW_STS_FILTER_8814B 0x0602
@@ -1047,10 +1047,9 @@
 #define REG_SDIO_RESPONSE_TIMER_8814B 0x10250088
 #define REG_SDIO_CMD_CRC_8814B 0x1025008A
 #define REG_SDIO_HSISR_8814B 0x10250090
-#define REG_SDIO_HSIMR_8814B 0x10250091
 #define REG_SDIO_ERR_RPT_8814B 0x102500C0
-#define REG_SDIO_CMD_ERRCNT_8814B 0x102500C1
-#define REG_SDIO_DATA_ERRCNT_8814B 0x102500C2
+#define REG_SDIO_CMD_ERRCNT_8814B 0x102500C2
+#define REG_SDIO_DATA_ERRCNT_8814B 0x102500C3
 #define REG_SDIO_CMD_ERR_CONTENT_8814B 0x102500C4
 #define REG_SDIO_CRC_ERR_IDX_8814B 0x102500C9
 #define REG_SDIO_DATA_CRC_8814B 0x102500CA

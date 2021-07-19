@@ -2615,7 +2615,7 @@ static int goodix_ts_probe(struct i2c_client *client, const struct i2c_device_id
     } else if (val == 911) {
     	m89or101 = FALSE;
     	bgt911 = TRUE;
-    	mGtpChange_X2Y = TRUE;
+		mGtpChange_X2Y = FALSE;
         mGtp_X_Reverse = FALSE;
         mGtp_Y_Reverse = TRUE;
     }

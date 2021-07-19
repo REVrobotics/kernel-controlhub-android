@@ -678,8 +678,14 @@ static int rk_ac_update_online(struct cw_battery *cw_bat)
 		return 0;
 	}
 
+#ifdef REV_RDS_BOARD
+	if (gpio_get_value(cw_bat->plat_data.dc_det_pin) ==
+	    cw_bat->plat_data.dc_det_level &&
+		cw_bat->usb_online == 0) {
+#else
 	if (gpio_get_value(cw_bat->plat_data.dc_det_pin) ==
 	    cw_bat->plat_data.dc_det_level) {
+#endif
 		if (cw_bat->dc_online != 1) {
 			cw_update_time_member_charge_start(cw_bat);
 			cw_bat->dc_online = 1;
@@ -702,7 +708,9 @@ static int rk_ac_update_online(struct cw_battery *cw_bat)
 
 static int get_usb_charge_state(struct cw_battery *cw_bat)
 {
+#ifdef NO_STANDARD_AC_BIG_CHARGE_MODE
 	int charge_time;
+#endif
 	int time_from_boot;
 	struct timespec ts;
 
@@ -748,10 +756,14 @@ static int rk_usb_update_online(struct cw_battery *cw_bat)
 	int value;
 	int ret = 0;
 	int usb_status = 0;
+#ifdef REV_RDS_BOARD
+	int dc_detect = gpio_get_value(cw_bat->plat_data.dc_det_pin);
+#endif
 
 	gpio = cw_bat->plat_data.chg_mode_sel_pin;
 	value = cw_bat->plat_data.chg_mode_sel_level;
 	usb_status = get_usb_charge_state(cw_bat);
+#ifndef REV_RDS_BOARD
 	if (usb_status == 2) {
 		if (cw_bat->charger_mode != AC_CHARGER_MODE) {
 			cw_bat->charger_mode = AC_CHARGER_MODE;
@@ -769,7 +781,13 @@ static int rk_usb_update_online(struct cw_battery *cw_bat)
 
 	} else if (usb_status == 1) {
 		if (cw_bat->charger_mode != USB_CHARGER_MODE &&
-		    cw_bat->dc_online == 0) {
+			cw_bat->dc_online == 0) {
+#else
+	if (usb_status != 0 && dc_detect == cw_bat->plat_data.dc_det_level) {
+		if (cw_bat->charger_mode != USB_CHARGER_MODE ) {
+			cw_update_time_member_charge_start(cw_bat);
+			cw_bat->dc_online = 0;
+#endif
 			cw_bat->charger_mode = USB_CHARGER_MODE;
 			ret = 1;
 		}
@@ -783,7 +801,11 @@ static int rk_usb_update_online(struct cw_battery *cw_bat)
 			cw_update_time_member_charge_start(cw_bat);
 		}
 
+#ifndef REV_RDS_BOARD
 	} else if (usb_status == 0 && cw_bat->usb_online != 0) {
+#else
+	} else if (((usb_status == 0) || (dc_detect != cw_bat->plat_data.dc_det_level)) && cw_bat->usb_online != 0) {
+#endif
 		if (gpio_is_valid(gpio)) {
 			if (gpio_get_value(gpio) == value)
 				gpio_direction_output(gpio, !value);

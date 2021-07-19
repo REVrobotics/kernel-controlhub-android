@@ -179,6 +179,11 @@ static void hid_io_error(struct hid_device *hid)
 
 	if (time_after(jiffies, usbhid->stop_retry)) {
 
+		if((hid->vendor == 0x2563) && (hid->product == 0x0526) && !test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+			test_and_set_bit(HID_RESET_PENDING, &usbhid->iofl);
+			printk("SHANWAN PS3/PC Gamepad HID_RESET_PENDING = %d\n",test_bit(HID_RESET_PENDING, &usbhid->iofl));
+		}
+
 		/* Retries failed, so do a port reset unless we lack bandwidth*/
 		if (!test_bit(HID_NO_BANDWIDTH, &usbhid->iofl)
 		     && !test_and_set_bit(HID_RESET_PENDING, &usbhid->iofl)) {

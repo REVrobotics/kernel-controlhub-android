@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2016 - 2017 Realtek Corporation.
+ * Copyright(c) 2016 - 2018 Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -168,6 +168,8 @@ static u8 usb_write_data_not_xmitframe(void *d, u8 *pBuf, u32 size, u8 qsel)
 		if (!buf)
 			return _FALSE;
 
+		_rtw_memcpy(buf + desclen, pBuf, size);
+
 		SET_TX_DESC_TXPKTSIZE_8821C(buf, size);
 	} else {
 
@@ -284,11 +286,16 @@ static u8 usb_write_data_rsvd_page(void *d, u8 *pBuf, u32 size)
 	struct dvobj_priv *pobj = (struct dvobj_priv *)d;
 	PADAPTER padapter = dvobj_get_primary_adapter(pobj);
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+	u8 ret;
 
 	if (pHalData->not_xmitframe_fw_dl)
-		return usb_write_data_not_xmitframe(d , pBuf , size, HALMAC_TXDESC_QSEL_BEACON);
+		ret = usb_write_data_not_xmitframe(d , pBuf , size, HALMAC_TXDESC_QSEL_BEACON);
 	else
-		return usb_write_data_rsvd_page_normal(d , pBuf , size);
+		ret = usb_write_data_rsvd_page_normal(d , pBuf , size);
+
+	if (ret == _TRUE)
+		return 1;
+	return 0;
 }
 
 static u8 usb_write_data_h2c(void *d, u8 *pBuf, u32 size)
@@ -296,11 +303,16 @@ static u8 usb_write_data_h2c(void *d, u8 *pBuf, u32 size)
 	struct dvobj_priv *pobj = (struct dvobj_priv *)d;
 	PADAPTER padapter = dvobj_get_primary_adapter(pobj);
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+	u8 ret;
 
 	if (pHalData->not_xmitframe_fw_dl)
-		return usb_write_data_not_xmitframe(d , pBuf , size, HALMAC_TXDESC_QSEL_H2C_CMD);
+		ret = usb_write_data_not_xmitframe(d , pBuf , size, HALMAC_TXDESC_QSEL_H2C_CMD);
 	else
-		return usb_write_data_h2c_normal(d , pBuf , size);
+		ret = usb_write_data_h2c_normal(d , pBuf , size);
+
+	if (ret == _TRUE)
+		return 1;
+	return 0;
 }
 
 int rtl8821cu_halmac_init_adapter(PADAPTER padapter)

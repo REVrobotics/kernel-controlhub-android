@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
+ * Copyright(c) 2016 - 2019 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -20,8 +20,8 @@
 
 #define HALMAC_SDIO_4BYTE_LEN_MASK      0x1FFF
 #define HALMAC_SDIO_LOCAL_MSK           0x0FFF
-#define HALMAC_WLAN_MAC_REG_MSK			0xFFFF
-#define	HALMAC_WLAN_IOREG_MSK			0xFFFF
+#define HALMAC_WLAN_MAC_REG_MSK		0xFFFF
+#define	HALMAC_WLAN_IOREG_MSK		0xFFFF
 
 /* Sdio Address for SDIO Local Reg, TRX FIFO, MAC Reg */
 enum halmac_sdio_cmd_addr {
@@ -46,8 +46,10 @@ enum halmac_sdio_cmd_addr {
 
 /* Get TX WLAN FIFO information in CMD53 addr  */
 #if (HALMAC_8822B_SUPPORT || HALMAC_8821C_SUPPORT)
-#define GET_WLAN_TXFF_DEVICE_ID(__pCmd53_addr)		LE_BITS_TO_4BYTE((u32 *)__pCmd53_addr, 13, 4)
-#define GET_WLAN_TXFF_PKT_SIZE(__pCmd53_addr)		(LE_BITS_TO_4BYTE((u32 *)__pCmd53_addr, 0, 13) << 2)
+#define GET_WLAN_TXFF_DEVICE_ID(cmd53_addr) \
+			LE_BITS_TO_4BYTE((u32 *)cmd53_addr, 13, 4)
+#define GET_WLAN_TXFF_PKT_SIZE(cmd53_addr) \
+			(LE_BITS_TO_4BYTE((u32 *)cmd53_addr, 0, 13) << 2)
 #endif
 
 #endif/* __HALMAC_SDIO_REG_H__ */

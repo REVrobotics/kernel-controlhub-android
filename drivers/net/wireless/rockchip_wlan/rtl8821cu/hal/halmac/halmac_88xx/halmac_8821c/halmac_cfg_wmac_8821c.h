@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2017 Realtek Corporation. All rights reserved.
+ * Copyright(c) 2017 - 2019 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -21,21 +21,19 @@
 #if HALMAC_8821C_SUPPORT
 
 enum halmac_ret_status
-halmac_cfg_drv_info_8821c(
-	IN struct halmac_adapter *adapter,
-	IN enum halmac_drv_info drv_info
-);
+cfg_drv_info_8821c(struct halmac_adapter *adapter,
+		   enum halmac_drv_info drv_info);
 
 enum halmac_ret_status
-halmac_init_low_pwr_8821c(
-	IN struct halmac_adapter *adapter
-);
+init_low_pwr_8821c(struct halmac_adapter *adapter);
 
 void
-halmac_cfg_mac_rx_ignore_8821c(
-	IN struct halmac_adapter *adapter,
-	IN struct halmac_mac_rx_ignore_cfg *cfg
-);
+cfg_rx_ignore_8821c(struct halmac_adapter *adapter,
+		    struct halmac_mac_rx_ignore_cfg *cfg);
+
+enum halmac_ret_status
+cfg_ampdu_8821c(struct halmac_adapter *adapter,
+		struct halmac_ampdu_config *cfg);
 
 #endif/* HALMAC_8821C_SUPPORT */
 

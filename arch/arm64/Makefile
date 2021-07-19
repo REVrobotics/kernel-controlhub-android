@@ -107,6 +107,7 @@ kernel.img: Image
 
 LOGO := $(notdir $(wildcard $(srctree)/logo.bmp))
 LOGO_KERNEL := $(notdir $(wildcard $(srctree)/logo_kernel.bmp))
+BATTERY_UI := $(notdir $(wildcard $(srctree)/battery_*.bmp))
 %.img: %.dtb kernel.img $(LOGO) $(LOGO_KERNEL)
-	$(Q)$(srctree)/resource_tool $(objtree)/arch/arm64/boot/dts/$*.dtb $(LOGO) $(LOGO_KERNEL)
-	@echo '  Image:  resource.img (with $*.dtb $(LOGO) $(LOGO_KERNEL)) is ready'
+	$(Q)$(srctree)/resource_tool $(objtree)/arch/arm64/boot/dts/$*.dtb $(LOGO) $(LOGO_KERNEL) $(BATTERY_UI)
+	@echo '  Image:  resource.img (with $*.dtb $(LOGO) $(LOGO_KERNEL) $(BATTERY_UI) ) is ready'

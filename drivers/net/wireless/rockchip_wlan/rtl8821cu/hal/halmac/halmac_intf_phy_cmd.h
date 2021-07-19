@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
+ * Copyright(c) 2016 - 2019 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -31,15 +31,17 @@ enum halmac_intf_phy_cut {
 
 /* IP selection */
 enum halmac_ip_sel {
-	HALMAC_IP_SEL_INTF_PHY = 0,
+	HALMAC_IP_INTF_PHY = 0,
 	HALMAC_IP_SEL_MAC = 1,
-	HALMAC_IP_SEL_PCIE_DBI = 2,
+	HALMAC_IP_PCIE_DBI = 2,
 	HALMAC_IP_SEL_UNDEFINE = 0x7FFF,
 };
 
 /* Platform mask */
 enum halmac_intf_phy_platform {
-	HALMAC_INTF_PHY_PLATFORM_ALL = 0x7FFF,
+	HALMAC_INTF_PHY_PLATFORM_ALL = BIT(0),
+	HALMAC_INTF_PHY_PLATFORM_ASUS = BIT(1),
+	HALMAC_INTF_PHY_PLATFORM_FOR_ALL = 0x7FFF,
 };
 
 #endif

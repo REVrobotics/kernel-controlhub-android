@@ -108,7 +108,7 @@ static void swledoff(PADAPTER padapter, PLED_USB led)
  */
 void rtl8821cu_initswleds(PADAPTER padapter)
 {
-	struct led_priv *ledpriv = &(padapter->ledpriv);
+	struct led_priv *ledpriv = adapter_to_led(padapter);
 	u8 enable = 1;
 	u8 mode = 3;
 
@@ -120,7 +120,6 @@ void rtl8821cu_initswleds(PADAPTER padapter)
 	InitLed(padapter, &(ledpriv->SwLed1), LED_PIN_LED1);
 	InitLed(padapter, &(ledpriv->SwLed2), LED_PIN_LED2);
 
-	rtw_halmac_led_cfg(adapter_to_dvobj(padapter), enable, mode);
 }
 
 /*
@@ -129,7 +128,7 @@ void rtl8821cu_initswleds(PADAPTER padapter)
  */
 void rtl8821cu_deinitswleds(PADAPTER padapter)
 {
-	struct led_priv *ledpriv = &(padapter->ledpriv);
+	struct led_priv *ledpriv = adapter_to_led(padapter);
 	u8 enable = 0;
 	u8 mode = 3;
 
@@ -137,6 +136,5 @@ void rtl8821cu_deinitswleds(PADAPTER padapter)
 	DeInitLed(&(ledpriv->SwLed1));
 	DeInitLed(&(ledpriv->SwLed2));
 
-	rtw_halmac_led_cfg(adapter_to_dvobj(padapter), enable, mode);
 }
 #endif

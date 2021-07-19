@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2017 Realtek Corporation. All rights reserved.
+ * Copyright(c) 2017 - 2019 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -45,49 +45,27 @@ enum halmac_rsvd_pg_state {
 	HALMAC_RSVD_PG_STATE_UNDEFINED = 0x7F,
 };
 
-enum halmac_efuse_cmd_construct_state {
-	HALMAC_EFUSE_CMD_IDLE = 0,
-	HALMAC_EFUSE_CMD_BUSY = 1,
-	HALMAC_EFUSE_CMD_H2C_SENT = 2,
-	HALMAC_EFUSE_CMD_STATE_NUM = 3,
-	HALMAC_EFUSE_CMD_UNDEFINED = 0x7F,
-};
-
-enum halmac_cfg_para_cmd_construct_state {
-	HALMAC_CFG_PARA_CMD_IDLE = 0,
-	HALMAC_CFG_PARA_CMD_CONSTRUCT = 1,
-	HALMAC_CFG_PARA_CMD_H2C_SENT = 2,
-	HALMAC_CFG_PARA_CMD_NUM = 3,
-	HALMAC_CFG_PARA_CMD_UNDEFINED = 0x7F,
-};
-
-enum halmac_scan_cmd_construct_state {
-	HALMAC_SCAN_CMD_IDLE = 0,
-	HALMAC_SCAN_CMD_BUFFER_CLEARED = 1,
-	HALMAC_SCAN_CMD_CONSTRUCT = 2,
-	HALMAC_SCAN_CMD_H2C_SENT = 3,
-	HALMAC_SCAN_CMD_NUM = 4,
-	HALMAC_SCAN_CMD_CONSTRUCT_UNDEFINED = 0x7F,
-};
-
-enum halmac_fw_snding_cmd_construct_state {
-	HALMAC_FW_SNDING_CMD_CONSTRUCT_IDLE = 0,
-	HALMAC_FW_SNDING_CMD_CONSTRUCT_SNDING = 1,
-	HALMAC_FW_SNDING_CONSTRUCT_UNDEFINED = 0x7F,
-};
-
 enum halmac_api_state {
 	HALMAC_API_STATE_INIT = 0,
 	HALMAC_API_STATE_HALT = 1,
 	HALMAC_API_STATE_UNDEFINED = 0x7F,
 };
 
+enum halmac_cmd_construct_state {
+	HALMAC_CMD_CNSTR_IDLE = 0,
+	HALMAC_CMD_CNSTR_BUSY = 1,
+	HALMAC_CMD_CNSTR_H2C_SENT = 2,
+	HALMAC_CMD_CNSTR_CNSTR = 3,
+	HALMAC_CMD_CNSTR_BUF_CLR = 4,
+	HALMAC_CMD_CNSTR_UNDEFINED = 0x7F,
+};
+
 enum halmac_cmd_process_status {
-	HALMAC_CMD_PROCESS_IDLE = 0x01,                 /* Init status */
-	HALMAC_CMD_PROCESS_SENDING = 0x02,              /* Wait ack */
-	HALMAC_CMD_PROCESS_RCVD = 0x03,                 /* Rcvd ack */
-	HALMAC_CMD_PROCESS_DONE = 0x04,                 /* Event done */
-	HALMAC_CMD_PROCESS_ERROR = 0x05,                /* Return code error */
+	HALMAC_CMD_PROCESS_IDLE = 0x01, /* Init status */
+	HALMAC_CMD_PROCESS_SENDING = 0x02, /* Wait ack */
+	HALMAC_CMD_PROCESS_RCVD = 0x03, /* Rcvd ack */
+	HALMAC_CMD_PROCESS_DONE = 0x04, /* Event done */
+	HALMAC_CMD_PROCESS_ERROR = 0x05, /* Return code error */
 	HALMAC_CMD_PROCESS_UNDEFINE = 0x7F,
 };
 
@@ -104,76 +82,91 @@ enum halmac_wlcpu_mode {
 	HALMAC_WLCPU_UNDEFINE = 0x7F,
 };
 
-struct halmac_efuse_state_set {
-	enum halmac_efuse_cmd_construct_state efuse_cmd_construct_state;
-	enum halmac_cmd_process_status process_status;
-	u8 fw_return_code;
+struct halmac_efuse_state {
+	enum halmac_cmd_construct_state cmd_cnstr_state;
+	enum halmac_cmd_process_status proc_status;
+	u8 fw_rc;
 	u16 seq_num;
 };
 
-struct halmac_cfg_para_state_set {
-	enum halmac_cfg_para_cmd_construct_state cfg_param_cmd_state;
-	enum halmac_cmd_process_status process_status;
-	u8 fw_return_code;
+struct halmac_cfg_param_state {
+	enum halmac_cmd_construct_state cmd_cnstr_state;
+	enum halmac_cmd_process_status proc_status;
+	u8 fw_rc;
 	u16 seq_num;
 };
 
-struct halmac_scan_state_set {
-	enum halmac_scan_cmd_construct_state scan_cmd_construct_state;
-	enum halmac_cmd_process_status process_status;
-	u8 fw_return_code;
+struct halmac_scan_state {
+	enum halmac_cmd_construct_state cmd_cnstr_state;
+	enum halmac_cmd_process_status proc_status;
+	u8 fw_rc;
 	u16 seq_num;
 };
 
-struct halmac_update_packet_state_set {
-	enum halmac_cmd_process_status process_status;
-	u8 fw_return_code;
+struct halmac_update_pkt_state {
+	enum halmac_cmd_process_status proc_status;
+	u8 fw_rc;
+	u16 seq_num;
+	u8 used_page;
+};
+
+struct halmac_scan_pkt_state {
+	enum halmac_cmd_process_status proc_status;
+	u8 fw_rc;
 	u16 seq_num;
 };
 
-struct halmac_iqk_state_set {
-	enum halmac_cmd_process_status process_status;
-	u8 fw_return_code;
+struct halmac_drop_pkt_state {
+	enum halmac_cmd_process_status proc_status;
+	u8 fw_rc;
 	u16 seq_num;
 };
 
-struct halmac_power_tracking_state_set {
-	enum halmac_cmd_process_status	process_status;
-	u8 fw_return_code;
+struct halmac_iqk_state {
+	enum halmac_cmd_process_status proc_status;
+	u8 fw_rc;
 	u16 seq_num;
 };
 
-struct halmac_psd_state_set {
-	enum halmac_cmd_process_status process_status;
+struct halmac_pwr_tracking_state {
+	enum halmac_cmd_process_status	proc_status;
+	u8 fw_rc;
+	u16 seq_num;
+};
+
+struct halmac_psd_state {
+	enum halmac_cmd_process_status proc_status;
 	u16 data_size;
-	u16 segment_size;
+	u16 seg_size;
 	u8 *data;
-	u8 fw_return_code;
+	u8 fw_rc;
 	u16 seq_num;
 };
 
-struct halmac_fw_snding_state_set {
-	enum halmac_fw_snding_cmd_construct_state fw_snding_cmd_construct_state;
-	enum halmac_cmd_process_status process_status;
-	u8 fw_return_code;
+struct halmac_fw_snding_state {
+	enum halmac_cmd_construct_state cmd_cnstr_state;
+	enum halmac_cmd_process_status proc_status;
+	u8 fw_rc;
 	u16 seq_num;
 };
 
 struct halmac_state {
-	struct halmac_efuse_state_set efuse_state_set; /* State machine + cmd process status */
-	struct halmac_cfg_para_state_set cfg_para_state_set; /* State machine + cmd process status */
-	struct halmac_scan_state_set scan_state_set; /* State machine + cmd process status */
-	struct halmac_update_packet_state_set update_packet_set; /* cmd process status */
-	struct halmac_iqk_state_set iqk_set; /* cmd process status */
-	struct halmac_power_tracking_state_set power_tracking_set; /* cmd process status */
-	struct halmac_psd_state_set psd_set; /* cmd process status */
-	struct halmac_fw_snding_state_set fw_snding_set; /* cmd process status */
-	enum halmac_api_state api_state; /* Halmac api state */
-	enum halmac_mac_power mac_power; /* 0 : power off, 1 : power on*/
-	enum halmac_dlfw_state dlfw_state; /* download FW state */
+	struct halmac_efuse_state efuse_state;
+	struct halmac_cfg_param_state cfg_param_state;
+	struct halmac_scan_state scan_state;
+	struct halmac_update_pkt_state update_pkt_state;
+	struct halmac_scan_pkt_state scan_pkt_state;
+	struct halmac_drop_pkt_state drop_pkt_state;
+	struct halmac_iqk_state iqk_state;
+	struct halmac_pwr_tracking_state pwr_trk_state;
+	struct halmac_psd_state psd_state;
+	struct halmac_fw_snding_state fw_snding_state;
+	enum halmac_api_state api_state;
+	enum halmac_mac_power mac_pwr;
+	enum halmac_dlfw_state dlfw_state;
 	enum halmac_wlcpu_mode wlcpu_mode;
-	enum halmac_gpio_cfg_state gpio_cfg_state; /* gpio state */
-	enum halmac_rsvd_pg_state rsvd_pg_state; /* download rsvd page state */
+	enum halmac_gpio_cfg_state gpio_cfg_state;
+	enum halmac_rsvd_pg_state rsvd_pg_state;
 };
 
 #endif
