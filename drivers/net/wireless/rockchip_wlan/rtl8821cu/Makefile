@@ -88,6 +88,13 @@ CONFIG_IP_R_MONITOR = n #arp VOQ and high rate
 # user priority mapping rule : tos, dscp
 CONFIG_RTW_UP_MAPPING_RULE = tos
 
+CONFIG_RTW_HOSTAPD_ACS = y
+
+ifeq ($(CONFIG_RTW_HOSTAPD_ACS), y)
+EXTRA_CFLAGS += -DCONFIG_RTW_HOSTAPD_ACS
+# EXTRA_CFLAGS += -DCONFIG_RTW_ACS_DBG
+endif
+
 ########################## Debug ###########################
 CONFIG_RTW_DEBUG = y
 # default log level is _DRV_INFO_ = 4,
