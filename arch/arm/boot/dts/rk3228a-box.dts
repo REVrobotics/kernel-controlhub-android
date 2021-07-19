@@ -1,0 +1,55 @@
+/dts-v1/;
+
+#include "rk3228a.dtsi"
+#include "rk322x-sdk.dtsi"
+
+/ {
+	wireless-wlan {
+		wifi_chip_type = "rtl8189fs";
+	};
+
+	wireless-bluetooth {
+		status = "disabled";
+	};
+
+	power-led {
+		compatible = "gpio-leds";
+		green {
+			gpios = <&gpio3 GPIO_C5 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+		red {
+			gpios = <&gpio1 GPIO_A7 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+	};
+
+	key {
+		compatible = "rockchip,key";
+		power-key {
+			gpios = <&gpio3 GPIO_C7 GPIO_ACTIVE_LOW>;
+			linux,code = <116>;
+			label = "power";
+			gpio-key,wakeup;
+		};
+	};
+
+	gpio_poweroff {
+		compatible = "gpio-poweroff";
+		gpios = <&gpio3 GPIO_C1 GPIO_ACTIVE_LOW>;
+		status = "okay";
+	};
+};
+
+&clk_core_dvfs_table {
+	operating-points = <
+		/* KHz    uV */
+		408000	950000
+		600000	975000
+		816000	1000000
+		1008000	1175000
+		1200000	1275000
+		1296000	1325000
+		>;
+	status = "okay";
+};
