@@ -73,6 +73,16 @@
 	};
 };
 
+&pinctrl {
+        pinctrl-names = "default";
+        pinctrl-0 = <&reset_gpio1_b5_h>;
+        reset_gpio1_b5: reset-gpio1-b5 {
+        reset_gpio1_b5_h: reset-gpio1-b5-h {
+            rockchip,pins = <1 GPIO_B5 0 &pcfg_pull_up_drv_12ma>;
+        };
+    };
+};
+
 &clk_core_dvfs_table {
 	operating-points = <
 		/* KHz	uV */
